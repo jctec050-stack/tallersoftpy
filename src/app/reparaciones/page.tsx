@@ -3,6 +3,7 @@ import { RepairForm } from "@/components/forms/RepairForm"
 import { EditRepairModal, DeleteRepairButton } from "@/components/repairs/RepairActions"
 import { DigitalBudgetModal } from "@/components/repairs/DigitalBudgetModal"
 import { VehicleHistoryModal } from "@/components/repairs/VehicleHistoryModal"
+import { RepairStatusSelect } from "@/components/repairs/RepairStatusSelect"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -238,7 +239,7 @@ CREATE POLICY "Permitir todo acceso a repairs" ON repairs FOR ALL USING (true) W
                     </TableCell>
 
                     <TableCell>
-                      {getStatusBadge(repair.status)}
+                      <RepairStatusSelect repairId={repair.id} currentStatus={repair.status} variant="badge" />
                     </TableCell>
 
                     <TableCell>

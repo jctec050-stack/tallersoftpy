@@ -2,6 +2,7 @@ import { getRepairById } from "@/actions/repairs"
 import { EditRepairModal, DeleteRepairButton } from "@/components/repairs/RepairActions"
 import { DigitalBudgetModal } from "@/components/repairs/DigitalBudgetModal"
 import { VehicleHistoryModal } from "@/components/repairs/VehicleHistoryModal"
+import { RepairStatusSelect } from "@/components/repairs/RepairStatusSelect"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -57,16 +58,20 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
           </div>
         </div>
 
-        {/* Priority and Status Badges */}
-        <div className="flex items-center gap-3 pt-1">
-          <span className="text-xs font-medium text-zinc-500">Prioridad:</span>
-          <Badge className={repair.priority === "Alta" ? "bg-red-100 text-red-800" : repair.priority === "Media" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}>
-            {repair.priority} Prioridad
-          </Badge>
-          <span className="text-xs font-medium text-zinc-500 ml-4">Estado:</span>
-          <Badge variant="outline" className="bg-zinc-100 text-zinc-800 font-semibold">
-            {repair.status}
-          </Badge>
+        {/* Priority and Interactive Status Stepper */}
+        <div className="border-t border-zinc-100 pt-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Prioridad:</span>
+            <Badge className={repair.priority === "Alta" ? "bg-red-100 text-red-800" : repair.priority === "Media" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}>
+              {repair.priority} Prioridad
+            </Badge>
+          </div>
+
+          <RepairStatusSelect
+            repairId={repair.id}
+            currentStatus={repair.status}
+            variant="stepper"
+          />
         </div>
       </div>
 

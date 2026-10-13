@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { generateWhatsAppLink } from "@/lib/whatsapp"
-import { FileText, Printer, Share2, Wrench, CheckCircle, Clock, XCircle, DollarSign } from "lucide-react"
+import { FileText, Printer, Share2, Wrench, CheckCircle, Clock, XCircle, DollarSign, FileDown, Loader2 } from "lucide-react"
 
 interface BudgetItem {
   id?: string
@@ -53,9 +53,13 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
     return new Intl.NumberFormat("es-PY", { style: "currency", currency: "PYG", maximumFractionDigits: 0 }).format(amount)
   }
 
+  const [loadingPdf, setLoadingPdf] = useState(false)
+
   // Generar texto para compartir por WhatsApp
   const generateWhatsAppBudgetText = () => {
     if (!client) return ""
+    const pdfPublicUrl = typeof window !== "undefined" ? `${window.location.origin}/api/repairs/${repair.id}/pdf` : ""
+
     let text = `*PRESUPUESTO DIGITAL - TALLER SAN LUIS*\n`
     text += `-----------------------------------\n`
     text += `👤 *Cliente:* ${client.name}\n`
@@ -68,9 +72,64 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
     })
     text += `-----------------------------------\n`
     text += `💰 *TOTAL GENERAL: ${formatCurrency(total)}*\n\n`
+    if (pdfPublicUrl) {
+      text += `📄 *PDF Digital:* Puede ver y descargar el documento oficial aquí:\n${pdfPublicUrl}\n\n`
+    }
     text += `Quedamos a su disposición para cualquier duda. ¡Gracias por elegir Taller San Luis!`
     
     return generateWhatsAppLink(client.phone, text)
+  }
+
+  const handleSendWhatsApp = async () => {
+    if (!client) return
+    setLoadingPdf(true)
+
+    try {
+      const pdfEndpoint = `/api/repairs/${repair.id}/pdf`
+      const res = await fetch(pdfEndpoint)
+      if (!res.ok) throw new Error("Error al obtener PDF")
+      const blob = await res.blob()
+      const fileName = `Presupuesto-PRES-${repair.id.slice(0, 8)}.pdf`
+      const pdfFile = new File([blob], fileName, { type: "application/pdf" })
+
+      // 1. Si el navegador soporta compartir archivos directamente (móviles / Web Share API)
+      if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        try {
+          await navigator.share({
+            files: [pdfFile],
+            title: `Presupuesto #${repair.id.slice(0, 8)} - Taller San Luis`,
+            text: `Hola ${client.name}, le adjuntamos el presupuesto de su vehículo ${vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.plate})` : ""}.\nTotal: ${formatCurrency(total)}\n\nTaller Mecánico San Luis.`
+          })
+          setLoadingPdf(false)
+          return
+        } catch (shareErr: any) {
+          if (shareErr.name === "AbortError") {
+            setLoadingPdf(false)
+            return
+          }
+          console.warn("Share API fallback:", shareErr)
+        }
+      }
+
+      // 2. Escritorio / Fallback: Descarga directa del PDF al equipo
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = fileName
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
+      // Y abrir WhatsApp con los datos y enlace al PDF
+      const whatsappUrl = generateWhatsAppBudgetText()
+      window.open(whatsappUrl, "_blank")
+    } catch (err) {
+      console.error("Error al procesar PDF para WhatsApp:", err)
+      window.open(generateWhatsAppBudgetText(), "_blank")
+    } finally {
+      setLoadingPdf(false)
+    }
   }
 
   return (
@@ -182,19 +241,41 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
         </div>
 
         {/* Botones de Acción */}
-        <div className="flex justify-between items-center pt-2">
+        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2">
           {client?.phone ? (
-            <a 
-              href={generateWhatsAppBudgetText()} 
-              target="_blank" 
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium transition-colors shadow-xs"
+            <Button
+              type="button"
+              onClick={handleSendWhatsApp}
+              disabled={loadingPdf}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
             >
-              <Share2 className="h-4 w-4" /> Enviar por WhatsApp
-            </a>
-          ) : <div />}
+              {loadingPdf ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generando PDF...
+                </>
+              ) : (
+                <>
+                  <Share2 className="mr-2 h-4 w-4" /> Enviar por WhatsApp
+                </>
+              )}
+            </Button>
+          ) : (
+            <div className="text-xs text-amber-600">
+              * El cliente no tiene teléfono registrado para WhatsApp
+            </div>
+          )}
 
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <a
+              href={`/api/repairs/${repair.id}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-md text-sm font-medium transition-colors shadow-xs"
+              title="Abrir o descargar PDF oficial"
+            >
+              <FileDown className="h-4 w-4 text-zinc-500" /> Descargar PDF
+            </a>
+
             <Button variant="outline" onClick={() => window.print()}>
               <Printer className="mr-1.5 h-4 w-4" /> Imprimir
             </Button>

@@ -106,6 +106,18 @@ export async function updateRepair(id: string, data: Partial<RepairData>) {
   revalidatePath("/reparaciones")
   revalidatePath(`/reparaciones/${id}`)
   revalidatePath("/mecanicos")
+  revalidatePath("/cobranzas")
+  revalidatePath("/")
+}
+
+export async function updateRepairStatus(id: string, status: RepairData["status"]) {
+  const { error } = await supabase.from("repairs").update({ status }).eq("id", id)
+  if (error) throw new Error(error.message)
+  revalidatePath("/reparaciones")
+  revalidatePath(`/reparaciones/${id}`)
+  revalidatePath("/mecanicos")
+  revalidatePath("/cobranzas")
+  revalidatePath("/")
 }
 
 export async function deleteRepair(id: string) {
