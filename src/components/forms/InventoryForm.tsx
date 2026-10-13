@@ -82,7 +82,7 @@ export function InventoryForm({ initialData, onSuccess }: InventoryFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor="code">Código / SKU Repuesto</Label>
           <Input id="code" {...register("code")} placeholder="ACE-5W30" className="uppercase font-mono" />
@@ -104,7 +104,7 @@ export function InventoryForm({ initialData, onSuccess }: InventoryFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor="name">Descripción / Repuesto</Label>
           <Input id="name" {...register("name")} placeholder="Filtro de Aceite Toyota Hilux" />
@@ -117,7 +117,7 @@ export function InventoryForm({ initialData, onSuccess }: InventoryFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor="stock">Stock Actual (Cantidad)</Label>
           <Input id="stock" type="number" {...register("stock")} placeholder="10" />
@@ -131,7 +131,7 @@ export function InventoryForm({ initialData, onSuccess }: InventoryFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor="cost_price">Precio de Costo (₲)</Label>
           <Input id="cost_price" type="number" {...register("cost_price")} placeholder="35000" />

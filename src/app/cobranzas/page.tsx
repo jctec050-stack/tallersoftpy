@@ -26,12 +26,12 @@ export default async function CobranzasPage({ searchParams }: { searchParams: Pr
   }
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Módulo de Cobranzas</h1>
-          <p className="text-sm text-zinc-500">Supervisión de pagos, cuentas por cobrar y facturación de servicios mecánicos.</p>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">Módulo de Cobranzas</h1>
+          <p className="text-xs sm:text-sm text-zinc-500">Supervisión de pagos, cuentas por cobrar y facturación de servicios mecánicos.</p>
         </div>
       </div>
 
@@ -47,9 +47,9 @@ export default async function CobranzasPage({ searchParams }: { searchParams: Pr
       )}
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card className="border-zinc-200 shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Total Facturado / Cotizado</p>
@@ -123,7 +123,93 @@ export default async function CobranzasPage({ searchParams }: { searchParams: Pr
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile View: Cards */}
+        <div className="md:hidden divide-y divide-zinc-100 p-4 space-y-3">
+          {repairs.length === 0 ? (
+            <div className="text-center py-8 text-zinc-500 text-xs">
+              No se encontraron registros de cobros o reparaciones.
+            </div>
+          ) : (
+            repairs.map((repair: any) => {
+              const client = repair.vehicle?.client
+              const vehicle = repair.vehicle
+              const isPaid = repair.status === "Entregado" || repair.budget_status === "Entregado"
+              const hasBudget = (repair.budget_total || 0) > 0
+
+              return (
+                <div key={repair.id} className="pt-3 first:pt-0 space-y-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <span className="font-bold text-zinc-900 text-sm block">
+                        👤 {client?.name || "Sin cliente"}
+                      </span>
+                      {vehicle && (
+                        <p className="text-xs text-zinc-500 mt-0.5">
+                          🚗 {vehicle.brand} {vehicle.model} ({vehicle.plate})
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-semibold text-zinc-400 uppercase">Total</p>
+                      <p className="text-sm font-bold text-zinc-900 font-mono">
+                        {formatCurrency(repair.budget_total || 0)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-zinc-100 text-xs">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <Badge variant="outline" className="text-xs font-normal">
+                        {repair.status}
+                      </Badge>
+                      {isPaid ? (
+                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                          Cobrado
+                        </Badge>
+                      ) : hasBudget ? (
+                        <Badge className="bg-amber-50 text-amber-700 border-amber-200">
+                          Pendiente
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-zinc-400">
+                          Sin cotizar
+                        </Badge>
+                      )}
+                    </div>
+                    <span className="text-[11px] text-zinc-400 font-mono">
+                      {repair.entry_date || "S/F"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-1.5 pt-1 border-t border-zinc-100 flex-wrap">
+                    {client?.phone && hasBudget && (
+                      <a
+                        href={generateWhatsAppLink(
+                          client.phone,
+                          `Hola ${client.name}, le saludamos de Taller San Luis sobre su vehículo ${vehicle?.brand} ${vehicle?.model}. El estado actual es: "${repair.status}". Total: ${formatCurrency(repair.budget_total || 0)}.`
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md active:bg-emerald-100"
+                      >
+                        <Phone className="h-3 w-3" /> WhatsApp
+                      </a>
+                    )}
+                    <Link
+                      href={`/reparaciones/${repair.id}`}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-zinc-700 bg-zinc-100 rounded-md hover:bg-zinc-200"
+                    >
+                      <ExternalLink className="h-3 w-3" /> Ver
+                    </Link>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+
+        {/* Desktop View: Table */}
+        <div className="hidden md:block overflow-x-auto">
           <Table>
             <TableHeader className="bg-zinc-50/50">
               <TableRow>

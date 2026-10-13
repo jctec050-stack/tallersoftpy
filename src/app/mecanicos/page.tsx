@@ -24,16 +24,16 @@ export default async function MecanicosPage({ searchParams }: { searchParams: Pr
   }, 0) || 0
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Gestión de Mecánicos</h1>
-          <p className="text-sm text-zinc-500">Administra el equipo técnico y asigna trabajos de reparación de forma rápida.</p>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">Gestión de Mecánicos</h1>
+          <p className="text-xs sm:text-sm text-zinc-500">Administra el equipo técnico y asigna trabajos de reparación de forma rápida.</p>
         </div>
 
         <Dialog>
-          <DialogTrigger render={<Button className="bg-zinc-900 text-white hover:bg-zinc-800 shadow-sm" />}>
+          <DialogTrigger render={<Button className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 shadow-sm" />}>
             <Plus className="mr-2 h-4 w-4" /> Registrar Nuevo Mecánico
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
@@ -77,39 +77,39 @@ CREATE POLICY "Permitir todo acceso a mechanics" ON mechanics FOR ALL USING (tru
       )}
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-zinc-100 rounded-lg text-zinc-900">
-              <UserCheck className="h-5 w-5" />
+          <CardContent className="p-3 sm:p-4 flex items-center space-x-3 sm:space-x-4">
+            <div className="p-2.5 sm:p-3 bg-zinc-100 rounded-lg text-zinc-900 shrink-0">
+              <UserCheck className="h-4 sm:h-5 w-4 sm:w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Total Mecánicos</p>
-              <p className="text-2xl font-bold text-zinc-900">{totalMechanics}</p>
+              <p className="text-[10px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider">Total</p>
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900">{totalMechanics}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-emerald-50 rounded-lg text-emerald-600">
-              <ShieldCheck className="h-5 w-5" />
+          <CardContent className="p-3 sm:p-4 flex items-center space-x-3 sm:space-x-4">
+            <div className="p-2.5 sm:p-3 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">
+              <ShieldCheck className="h-4 sm:h-5 w-4 sm:w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Mecánicos Activos</p>
-              <p className="text-2xl font-bold text-zinc-900">{activeMechanics}</p>
+              <p className="text-[10px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider">Activos</p>
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900">{activeMechanics}</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-blue-50 rounded-lg text-blue-600">
-              <Wrench className="h-5 w-5" />
+        <Card className="bg-white border-zinc-200 shadow-xs col-span-2 sm:col-span-1">
+          <CardContent className="p-3 sm:p-4 flex items-center space-x-3 sm:space-x-4">
+            <div className="p-2.5 sm:p-3 bg-blue-50 rounded-lg text-blue-600 shrink-0">
+              <Wrench className="h-4 sm:h-5 w-4 sm:w-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Servicios en Curso</p>
-              <p className="text-2xl font-bold text-zinc-900">{totalAssignedRepairs}</p>
+              <p className="text-[10px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider">Servicios en Curso</p>
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900">{totalAssignedRepairs}</p>
             </div>
           </CardContent>
         </Card>
@@ -120,8 +120,91 @@ CREATE POLICY "Permitir todo acceso a mechanics" ON mechanics FOR ALL USING (tru
         <SearchInput placeholder="Buscar por nombre, especialidad o teléfono..." />
       </div>
 
-      {/* Mechanics Table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
+      {/* Mobile Cards View (md:hidden) */}
+      <div className="md:hidden space-y-3">
+        {(!mechanics || mechanics.length === 0) ? (
+          <div className="p-8 text-center bg-white rounded-xl border border-zinc-200 text-zinc-500 space-y-2">
+            <UserCheck className="h-8 w-8 text-zinc-300 mx-auto" />
+            <p className="font-medium text-zinc-700">
+              {fetchError ? "Sin conexión o tabla pendiente" : "No hay mecánicos registrados"}
+            </p>
+            <p className="text-xs text-zinc-500">
+              Usa el botón de arriba para registrar al equipo técnico.
+            </p>
+          </div>
+        ) : (
+          mechanics.map((m: any) => {
+            const activeJobsCount = m.repairs?.filter((r: any) => r.status !== "Completado" && r.status !== "Entregado").length || 0
+
+            return (
+              <div key={m.id} className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                      {m.name.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <Link href={`/mecanicos/${m.id}`} className="font-semibold text-zinc-900 hover:text-blue-600 transition-colors block text-sm">
+                        {m.name}
+                      </Link>
+                      {m.email && <p className="text-xs text-zinc-400">{m.email}</p>}
+                    </div>
+                  </div>
+                  {m.status === "Activo" ? (
+                    <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 text-[10px]">🟢 Activo</Badge>
+                  ) : (
+                    <Badge className="bg-red-100 text-red-800 border-red-200 text-[10px]">🔴 Inactivo</Badge>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-100">
+                  <Badge variant="secondary" className="bg-zinc-100 text-zinc-800 text-xs font-medium">
+                    🔧 {m.specialty || "Mecánica General"}
+                  </Badge>
+                  <Badge variant="outline" className={activeJobsCount > 0 ? "bg-blue-50 text-blue-700 border-blue-200 font-bold text-xs" : "text-zinc-400 border-zinc-200 font-normal text-xs"}>
+                    <Wrench className="h-3 w-3 mr-1 text-zinc-500" />
+                    {activeJobsCount} {activeJobsCount === 1 ? "trabajo" : "trabajos"}
+                  </Badge>
+                </div>
+
+                {m.phone && (
+                  <div className="flex items-center justify-between text-xs bg-zinc-50 p-2.5 rounded-lg border border-zinc-100">
+                    <span className="font-medium text-zinc-700 flex items-center gap-1.5">
+                      <Phone className="h-3.5 w-3.5 text-zinc-400" /> {m.phone}
+                    </span>
+                    <a
+                      href={generateWhatsAppLink(m.phone)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full hover:bg-emerald-200 transition-colors"
+                    >
+                      <MessageCircle className="h-3 w-3" /> WhatsApp
+                    </a>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-2 border-t border-zinc-100 gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <AssignServiceModal mechanicId={m.id} mechanicName={m.name} />
+                    <Link href={`/mecanicos/${m.id}`}>
+                      <Button variant="ghost" size="sm" className="h-8 text-xs text-zinc-600 hover:text-zinc-900 px-2">
+                        <Eye className="mr-1 h-3.5 w-3.5" /> Ver
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <EditMechanicModal mechanic={m} />
+                    <DeleteMechanicButton mechanicId={m.id} name={m.name} />
+                  </div>
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {/* Mechanics Table (hidden md:block) */}
+      <div className="hidden md:block rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
         <Table>
           <TableHeader className="bg-zinc-50 border-b border-zinc-200">
             <TableRow>

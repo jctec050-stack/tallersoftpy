@@ -19,7 +19,7 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r bg-zinc-950 text-zinc-50">
+    <div className="hidden md:flex h-screen w-64 flex-col border-r bg-zinc-950 text-zinc-50 shrink-0">
       <div className="flex h-16 shrink-0 items-center justify-center border-b border-zinc-800 px-4">
         <Wrench className="mr-2 h-6 w-6 text-zinc-300" />
         <span className="text-lg font-bold tracking-widest text-zinc-100 uppercase">San Luis</span>

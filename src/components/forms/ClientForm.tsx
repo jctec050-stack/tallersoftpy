@@ -72,7 +72,7 @@ export function ClientForm({ initialData, onSuccess }: ClientFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
       
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor="name">Nombre / Razón Social</Label>
           <Input id="name" {...register("name")} placeholder="Juan Pérez" />
@@ -85,7 +85,7 @@ export function ClientForm({ initialData, onSuccess }: ClientFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor="phone">Teléfono</Label>
           <Input id="phone" {...register("phone")} placeholder="0981 123 456" />

@@ -78,7 +78,7 @@ export function MechanicForm({ initialData, onSuccess }: MechanicFormProps) {
         {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor="specialty">Especialidad Principal</Label>
           <select 
@@ -106,7 +106,7 @@ export function MechanicForm({ initialData, onSuccess }: MechanicFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor="phone">Teléfono / WhatsApp</Label>
           <Input id="phone" {...register("phone")} placeholder="0981 555 123" />

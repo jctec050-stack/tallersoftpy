@@ -137,7 +137,7 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
       <DialogTrigger render={<Button variant="outline" size="sm" className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" />}>
         <FileText className="mr-1.5 h-4 w-4 text-emerald-600" /> Presupuesto Digital
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-[700px] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="flex justify-between items-center pr-6">
             <span className="flex items-center gap-2">
@@ -150,17 +150,17 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
         </DialogHeader>
 
         {/* Layout imprimible del Presupuesto */}
-        <div className="bg-white border border-zinc-200 rounded-xl p-6 space-y-6 text-zinc-900 shadow-xs">
+        <div className="bg-white border border-zinc-200 rounded-xl p-4 sm:p-6 space-y-5 sm:space-y-6 text-zinc-900 shadow-xs">
           {/* Header Empresa */}
-          <div className="flex justify-between items-start border-b border-zinc-200 pb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-3 border-b border-zinc-200 pb-4">
             <div>
-              <div className="flex items-center gap-2 text-zinc-900 font-bold text-xl uppercase tracking-wider">
-                <Wrench className="h-6 w-6 text-zinc-800" /> TALLER SAN LUIS
+              <div className="flex items-center gap-2 text-zinc-900 font-bold text-lg sm:text-xl uppercase tracking-wider">
+                <Wrench className="h-5 sm:h-6 w-5 sm:w-6 text-zinc-800" /> TALLER SAN LUIS
               </div>
               <p className="text-xs text-zinc-500 mt-1">Servicio Automotriz Multimarca & Mantenimiento</p>
               <p className="text-xs text-zinc-500">Asunción - Paraguay | Tel: 0981 123 456</p>
             </div>
-            <div className="text-right">
+            <div className="text-left sm:text-right">
               <span className="text-xs font-semibold text-zinc-400 uppercase tracking-widest block">ORDEN DE TRABAJO</span>
               <span className="font-mono text-sm font-bold text-zinc-900">#PRES-{repair.id.slice(0, 8)}</span>
               <span className="text-xs text-zinc-500 block mt-1">Fecha: {new Date(repair.entry_date).toLocaleDateString("es-PY")}</span>
@@ -168,7 +168,7 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
           </div>
 
           {/* Datos Cliente y Vehículo */}
-          <div className="grid grid-cols-2 gap-4 bg-zinc-50 p-4 rounded-lg border border-zinc-100 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-zinc-50 p-3.5 sm:p-4 rounded-lg border border-zinc-100 text-sm">
             <div>
               <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">DATOS DEL CLIENTE</p>
               <p className="font-bold text-zinc-900">{client?.name || "Cliente General"}</p>
@@ -198,40 +198,42 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
           {/* Tabla de Repuestos y Mano de Obra */}
           <div>
             <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Detalle de Repuestos y Servicios</p>
-            <table className="w-full text-sm text-left border border-zinc-200 rounded-lg overflow-hidden">
-              <thead className="bg-zinc-100 text-zinc-700 text-xs uppercase font-semibold">
-                <tr>
-                  <th className="py-2.5 px-3">Descripción</th>
-                  <th className="py-2.5 px-3 text-center">Cant.</th>
-                  <th className="py-2.5 px-3 text-right">Precio Unit.</th>
-                  <th className="py-2.5 px-3 text-right">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-200">
-                {items.length === 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs sm:text-sm text-left border border-zinc-200 rounded-lg overflow-hidden min-w-[450px]">
+                <thead className="bg-zinc-100 text-zinc-700 text-xs uppercase font-semibold">
                   <tr>
-                    <td colSpan={4} className="py-6 text-center text-zinc-400 italic text-xs">
-                      No hay repuestos o servicios cargados en este presupuesto.
-                    </td>
+                    <th className="py-2.5 px-3">Descripción</th>
+                    <th className="py-2.5 px-3 text-center">Cant.</th>
+                    <th className="py-2.5 px-3 text-right">Precio Unit.</th>
+                    <th className="py-2.5 px-3 text-right">Subtotal</th>
                   </tr>
-                ) : (
-                  items.map((item, i) => (
-                    <tr key={i} className="hover:bg-zinc-50">
-                      <td className="py-2.5 px-3 font-medium text-zinc-900">{item.description}</td>
-                      <td className="py-2.5 px-3 text-center text-zinc-600">{item.quantity}</td>
-                      <td className="py-2.5 px-3 text-right text-zinc-600">{formatCurrency(item.price)}</td>
-                      <td className="py-2.5 px-3 text-right font-semibold text-zinc-900">{formatCurrency(item.total)}</td>
+                </thead>
+                <tbody className="divide-y divide-zinc-200">
+                  {items.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-6 text-center text-zinc-400 italic text-xs">
+                        No hay repuestos o servicios cargados en este presupuesto.
+                      </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-              <tfoot className="bg-zinc-900 text-white font-bold text-sm">
-                <tr>
-                  <td colSpan={3} className="py-3 px-4 text-right uppercase tracking-wider text-xs">Total del Presupuesto:</td>
-                  <td className="py-3 px-4 text-right text-base text-emerald-400">{formatCurrency(total)}</td>
-                </tr>
-              </tfoot>
-            </table>
+                  ) : (
+                    items.map((item, i) => (
+                      <tr key={i} className="hover:bg-zinc-50">
+                        <td className="py-2.5 px-3 font-medium text-zinc-900">{item.description}</td>
+                        <td className="py-2.5 px-3 text-center text-zinc-600">{item.quantity}</td>
+                        <td className="py-2.5 px-3 text-right text-zinc-600">{formatCurrency(item.price)}</td>
+                        <td className="py-2.5 px-3 text-right font-semibold text-zinc-900">{formatCurrency(item.total)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+                <tfoot className="bg-zinc-900 text-white font-bold text-xs sm:text-sm">
+                  <tr>
+                    <td colSpan={3} className="py-3 px-4 text-right uppercase tracking-wider text-xs">Total del Presupuesto:</td>
+                    <td className="py-3 px-4 text-right text-sm sm:text-base text-emerald-400">{formatCurrency(total)}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
 
           {/* Notas finales */}
@@ -247,7 +249,7 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
               type="button"
               onClick={handleSendWhatsApp}
               disabled={loadingPdf}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
             >
               {loadingPdf ? (
                 <>
@@ -265,21 +267,21 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
             </div>
           )}
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <a
               href={`/api/repairs/${repair.id}/pdf`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-2 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-md text-sm font-medium transition-colors shadow-xs"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-md text-xs sm:text-sm font-medium transition-colors shadow-xs flex-1 sm:flex-none"
               title="Abrir o descargar PDF oficial"
             >
               <FileDown className="h-4 w-4 text-zinc-500" /> Descargar PDF
             </a>
 
-            <Button variant="outline" onClick={() => window.print()}>
+            <Button variant="outline" size="sm" onClick={() => window.print()} className="flex-1 sm:flex-none text-xs sm:text-sm">
               <Printer className="mr-1.5 h-4 w-4" /> Imprimir
             </Button>
-            <Button variant="secondary" onClick={() => setOpen(false)}>
+            <Button variant="secondary" size="sm" onClick={() => setOpen(false)} className="flex-1 sm:flex-none text-xs sm:text-sm">
               Cerrar
             </Button>
           </div>

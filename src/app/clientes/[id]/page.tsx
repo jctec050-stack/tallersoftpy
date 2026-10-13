@@ -20,7 +20,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const vehicles = client.vehicles || [];
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-6 sm:space-y-8">
       {/* Navigation link */}
       <div>
         <Link href="/clientes" className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
@@ -29,16 +29,16 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       </div>
 
       {/* Client Profile Card */}
-      <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-xs space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-100 pb-4">
+      <div className="bg-white border border-zinc-200 rounded-xl p-4 sm:p-6 shadow-xs space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 pb-4">
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight text-zinc-900">{client.name}</h1>
-              <Badge variant="secondary" className="bg-zinc-100 text-zinc-700">
+            <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">{client.name}</h1>
+              <Badge variant="secondary" className="bg-zinc-100 text-zinc-700 text-xs">
                 {vehicles.length} {vehicles.length === 1 ? "vehículo" : "vehículos"}
               </Badge>
             </div>
-            <p className="text-sm text-zinc-500 mt-1">Perfil del cliente y rodados asignados</p>
+            <p className="text-xs sm:text-sm text-zinc-500 mt-1">Perfil del cliente y rodados asignados</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -48,7 +48,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         </div>
 
         {/* Client Info Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-sm">
           <div className="bg-zinc-50 p-3.5 rounded-lg border border-zinc-100">
             <div className="flex items-center text-zinc-500 text-xs font-medium mb-1">
               <FileText className="mr-1.5 h-3.5 w-3.5 text-zinc-400" /> Documento / RUC
@@ -93,17 +93,71 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
       {/* Vehicles Section */}
       <div className="space-y-4">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
           <div>
             <h2 className="text-lg font-bold text-zinc-900 flex items-center">
-              <Car className="mr-2 h-5 w-5 text-zinc-700" /> Vehicles ({vehicles.length})
+              <Car className="mr-2 h-5 w-5 text-zinc-700" /> Vehículos Asignados ({vehicles.length})
             </h2>
             <p className="text-xs text-zinc-500">Puedes agregar múltiples vehículos para un mismo cliente.</p>
           </div>
           <AddVehicleModal clientId={client.id} clientName={client.name} buttonVariant="default" />
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
+        {/* Mobile Cards View (md:hidden) */}
+        <div className="md:hidden space-y-3">
+          {vehicles.length === 0 ? (
+            <div className="p-8 text-center bg-white rounded-xl border border-zinc-200 text-zinc-500 space-y-2">
+              <Car className="h-8 w-8 text-zinc-300 mx-auto" />
+              <p className="font-medium text-zinc-700">Este cliente aún no tiene vehículos registrados</p>
+              <p className="text-xs text-zinc-500">Haz clic en "Agregar Vehículo" para agregar el primero.</p>
+            </div>
+          ) : (
+            vehicles.map((vehicle: any) => (
+              <div key={vehicle.id} className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <Badge variant="outline" className="font-mono text-xs uppercase bg-zinc-100 font-bold tracking-wider px-2.5 py-1">
+                      {vehicle.plate}
+                    </Badge>
+                    <h3 className="font-bold text-zinc-900 text-base">
+                      {vehicle.brand} {vehicle.model}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <EditVehicleModal vehicle={vehicle} clientId={client.id} />
+                    <DeleteVehicleButton vehicleId={vehicle.id} plate={vehicle.plate} clientId={client.id} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs bg-zinc-50 p-2.5 rounded-lg border border-zinc-100">
+                  <div>
+                    <span className="text-zinc-400 block text-[10px] uppercase font-semibold">Año</span>
+                    <span className="font-medium text-zinc-700">{vehicle.year || "-"}</span>
+                  </div>
+                  <div>
+                    <span className="text-zinc-400 block text-[10px] uppercase font-semibold">Kilometraje</span>
+                    <span className="font-medium text-zinc-700">{vehicle.mileage ? vehicle.mileage.toLocaleString() : 0} km</span>
+                  </div>
+                  {vehicle.color && (
+                    <div>
+                      <span className="text-zinc-400 block text-[10px] uppercase font-semibold">Color</span>
+                      <span className="font-medium text-zinc-700 capitalize">🎨 {vehicle.color}</span>
+                    </div>
+                  )}
+                  {vehicle.vin && (
+                    <div className="col-span-2">
+                      <span className="text-zinc-400 block text-[10px] uppercase font-semibold">VIN / Chasis</span>
+                      <span className="font-mono text-[11px] text-zinc-600 truncate block">{vehicle.vin}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table (hidden md:block) */}
+        <div className="hidden md:block rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
           <Table>
             <TableHeader className="bg-zinc-50 border-b border-zinc-200">
               <TableRow>

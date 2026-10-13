@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { MobileNav } from "@/components/layout/MobileNav";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,9 +18,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="h-full bg-zinc-50">
-      <body className={`${inter.className} flex h-full overflow-hidden antialiased text-zinc-900`}>
+      <body className={`${inter.className} flex flex-col md:flex-row h-full overflow-hidden antialiased text-zinc-900`}>
         <Sidebar />
-        <main className="flex-1 overflow-y-auto bg-white">
+        <MobileNav />
+        <main className="flex-1 overflow-y-auto bg-white pb-20 md:pb-0">
           {children}
         </main>
       </body>

@@ -21,7 +21,7 @@ export default async function MechanicDetailPage({ params }: { params: Promise<{
   const completedRepairs = repairs.filter((r: any) => r.status === "Completado" || r.status === "Entregado")
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-6 sm:space-y-8">
       {/* Back Link */}
       <div>
         <Link href="/mecanicos" className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
@@ -30,26 +30,26 @@ export default async function MechanicDetailPage({ params }: { params: Promise<{
       </div>
 
       {/* Profile Card */}
-      <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-xs space-y-6">
+      <div className="bg-white border border-zinc-200 rounded-xl p-4 sm:p-6 shadow-xs space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-100 pb-4">
           <div className="flex items-center space-x-4">
-            <div className="w-14 h-14 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold text-xl shadow-xs">
+            <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold text-lg sm:text-xl shadow-xs shrink-0">
               {mechanic.name.substring(0, 2).toUpperCase()}
             </div>
             <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-zinc-900">{mechanic.name}</h1>
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">{mechanic.name}</h1>
                 {mechanic.status === "Activo" ? (
-                  <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">🟢 Activo</Badge>
+                  <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 text-xs">🟢 Activo</Badge>
                 ) : (
-                  <Badge className="bg-red-100 text-red-800 border-red-200">🔴 Inactivo</Badge>
+                  <Badge className="bg-red-100 text-red-800 border-red-200 text-xs">🔴 Inactivo</Badge>
                 )}
               </div>
-              <p className="text-sm font-medium text-zinc-500 mt-1">🔧 {mechanic.specialty || "Mecánica General"}</p>
+              <p className="text-xs sm:text-sm font-medium text-zinc-500 mt-1">🔧 {mechanic.specialty || "Mecánica General"}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <AssignServiceModal mechanicId={mechanic.id} mechanicName={mechanic.name} />
             <EditMechanicModal mechanic={mechanic} />
             <DeleteMechanicButton mechanicId={mechanic.id} name={mechanic.name} />
@@ -97,7 +97,69 @@ export default async function MechanicDetailPage({ params }: { params: Promise<{
           </div>
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
+        {/* Mobile Cards View (md:hidden) */}
+        <div className="md:hidden space-y-3">
+          {repairs.length === 0 ? (
+            <div className="p-8 text-center bg-white rounded-xl border border-zinc-200 text-zinc-500 space-y-2">
+              <Wrench className="h-8 w-8 text-zinc-300 mx-auto" />
+              <p className="font-medium text-zinc-700">Este mecánico no tiene trabajos asignados</p>
+              <p className="text-xs text-zinc-500">Haz clic en "Asignar Servicio" para asignarle una orden.</p>
+            </div>
+          ) : (
+            repairs.map((repair: any) => {
+              const vehicle = repair.vehicle
+              const client = vehicle?.client
+
+              return (
+                <div key={repair.id} className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-xs font-semibold text-zinc-600">
+                      <Calendar className="h-3.5 w-3.5 mr-1 text-zinc-400" />
+                      {new Date(repair.entry_date).toLocaleDateString("es-PY")}
+                    </div>
+                    <Badge className={repair.priority === "Alta" ? "bg-red-100 text-red-800 text-[10px]" : repair.priority === "Media" ? "bg-amber-100 text-amber-800 text-[10px]" : "bg-emerald-100 text-emerald-800 text-[10px]"}>
+                      {repair.priority}
+                    </Badge>
+                  </div>
+
+                  <div>
+                    {vehicle ? (
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <Badge variant="outline" className="font-mono text-xs uppercase bg-zinc-100 font-bold">
+                            {vehicle.plate}
+                          </Badge>
+                          <span className="font-semibold text-zinc-900 text-sm">{vehicle.brand} {vehicle.model}</span>
+                        </div>
+                        {client && <span className="text-xs text-zinc-500 block mt-1">👤 Cliente: {client.name}</span>}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-zinc-400 italic">Sin vehículo</span>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-zinc-700 bg-zinc-50 p-2.5 rounded-lg border border-zinc-100 line-clamp-2">
+                    {repair.reason}
+                  </p>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-zinc-100">
+                    <Badge variant="outline" className="text-xs font-medium bg-zinc-50">
+                      {repair.status}
+                    </Badge>
+                    <Link href={`/reparaciones/${repair.id}`}>
+                      <Button variant="outline" size="sm" className="h-8 text-xs font-semibold text-zinc-800">
+                        <Eye className="mr-1 h-3.5 w-3.5" /> Ver Orden
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+
+        {/* Desktop Table (hidden md:block) */}
+        <div className="hidden md:block rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
           <Table>
             <TableHeader className="bg-zinc-50 border-b border-zinc-200">
               <TableRow>

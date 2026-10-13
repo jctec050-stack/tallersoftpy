@@ -330,46 +330,46 @@ export function RepairForm({ initialData, preselectedVehicleId, onSuccess }: Rep
         </div>
 
         {/* Carga de nuevo ítem */}
-        <div className="grid grid-cols-12 gap-2 bg-zinc-50 p-3 rounded-lg border border-zinc-200">
-          <div className="col-span-5">
-            <Input 
-              placeholder="Descripción (ej. Cambio de aceite, Pastillas)" 
-              value={newItemDesc}
-              onChange={(e) => setNewItemDesc(e.target.value)}
-              className="h-9 text-xs"
-            />
-          </div>
-          <div className="col-span-2">
-            <Input 
-              type="number"
-              placeholder="Cant." 
-              value={newItemQty}
-              min={1}
-              onChange={(e) => setNewItemQty(parseInt(e.target.value) || 1)}
-              className="h-9 text-xs text-center"
-            />
-          </div>
-          <div className="col-span-3">
-            <Input 
-              type="number"
-              placeholder="Precio ₲" 
-              value={newItemPrice}
-              min={0}
-              onChange={(e) => setNewItemPrice(e.target.value)}
-              className="h-9 text-xs"
-            />
-          </div>
-          <div className="col-span-2">
-            <Button type="button" size="sm" onClick={addBudgetItem} className="w-full h-9 bg-zinc-900 text-white text-xs">
-              <Plus className="h-3.5 w-3.5 mr-1" /> Ítem
-            </Button>
+        <div className="bg-zinc-50 p-3 rounded-lg border border-zinc-200 space-y-2">
+          <Input 
+            placeholder="Descripción (ej. Cambio de aceite, Pastillas)" 
+            value={newItemDesc}
+            onChange={(e) => setNewItemDesc(e.target.value)}
+            className="h-9 text-xs w-full bg-white"
+          />
+          <div className="grid grid-cols-12 gap-2">
+            <div className="col-span-4 sm:col-span-3">
+              <Input 
+                type="number"
+                placeholder="Cant." 
+                value={newItemQty}
+                min={1}
+                onChange={(e) => setNewItemQty(parseInt(e.target.value) || 1)}
+                className="h-9 text-xs text-center bg-white"
+              />
+            </div>
+            <div className="col-span-5 sm:col-span-6">
+              <Input 
+                type="number"
+                placeholder="Precio ₲" 
+                value={newItemPrice}
+                min={0}
+                onChange={(e) => setNewItemPrice(e.target.value)}
+                className="h-9 text-xs bg-white"
+              />
+            </div>
+            <div className="col-span-3">
+              <Button type="button" size="sm" onClick={addBudgetItem} className="w-full h-9 bg-zinc-900 text-white text-xs">
+                <Plus className="h-3.5 w-3.5 mr-1" /> Ítem
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Tabla de ítems presupuestados */}
         {budgetItems.length > 0 && (
-          <div className="border rounded-lg overflow-hidden text-xs">
-            <table className="w-full text-left">
+          <div className="border rounded-lg overflow-x-auto text-xs">
+            <table className="w-full text-left min-w-[340px]">
               <thead className="bg-zinc-100 text-zinc-700 font-semibold border-b">
                 <tr>
                   <th className="p-2">Ítem / Servicio</th>

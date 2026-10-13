@@ -29,7 +29,7 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto space-y-4 sm:space-y-6">
       <div>
         <Link href="/reparaciones" className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
           <ArrowLeft className="mr-1.5 h-4 w-4" /> Volver a Reparaciones
@@ -37,11 +37,11 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
       </div>
 
       {/* Main Header Card */}
-      <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-xs space-y-4">
+      <div className="bg-white border border-zinc-200 rounded-xl p-4 sm:p-6 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-zinc-900">Orden de Reparación</h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold text-zinc-900">Orden de Reparación</h1>
               <Badge variant="outline" className="font-mono text-xs">#REP-{repair.id.slice(0, 8)}</Badge>
             </div>
             <div className="flex items-center gap-3 text-xs text-zinc-500 mt-1">
@@ -51,7 +51,7 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <DigitalBudgetModal repair={repair} />
             <EditRepairModal repair={repair} />
             <DeleteRepairButton repairId={repair.id} reason={repair.reason} />
@@ -179,8 +179,8 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
         {items.length === 0 ? (
           <p className="text-xs text-zinc-400 italic py-4 text-center">Aún no se han agregado ítems al presupuesto de esta orden.</p>
         ) : (
-          <div className="space-y-3">
-            <table className="w-full text-xs text-left border border-zinc-200 rounded-lg overflow-hidden">
+          <div className="space-y-3 overflow-x-auto">
+            <table className="w-full text-xs text-left border border-zinc-200 rounded-lg overflow-hidden min-w-[480px]">
               <thead className="bg-zinc-100 text-zinc-700 font-semibold">
                 <tr>
                   <th className="p-2.5">Descripción</th>

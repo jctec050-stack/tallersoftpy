@@ -10,8 +10,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { SearchInput } from "@/components/ui/search-input"
+import { generateWhatsAppLink } from "@/lib/whatsapp"
 import Link from "next/link"
-import { Wrench, Plus, Eye, Calendar, AlertTriangle, Image as ImageIcon, Car, Clock, CheckCircle2, ShieldAlert } from "lucide-react"
+import { Wrench, Plus, Eye, Calendar, AlertTriangle, Image as ImageIcon, Car, Clock, CheckCircle2, ShieldAlert, Phone, ExternalLink } from "lucide-react"
 
 export default async function ReparacionesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const params = await searchParams
@@ -51,16 +52,16 @@ export default async function ReparacionesPage({ searchParams }: { searchParams:
   }
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Gestión de Reparaciones</h1>
-          <p className="text-sm text-zinc-500">Órdenes de trabajo, diagnósticos, fotos previas y presupuestos digitales.</p>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">Gestión de Reparaciones</h1>
+          <p className="text-xs sm:text-sm text-zinc-500">Órdenes de trabajo, diagnósticos, fotos previas y presupuestos digitales.</p>
         </div>
 
         <Dialog>
-          <DialogTrigger render={<Button className="bg-zinc-900 text-white hover:bg-zinc-800 shadow-sm" />}>
+          <DialogTrigger render={<Button className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 shadow-sm" />}>
             <Plus className="mr-2 h-4 w-4" /> Nueva Orden de Reparación
           </DialogTrigger>
           <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
@@ -108,7 +109,7 @@ CREATE POLICY "Permitir todo acceso a repairs" ON repairs FOR ALL USING (true) W
       )}
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <Card className="bg-white border-zinc-200 shadow-xs">
           <CardContent className="p-4 flex items-center space-x-4">
             <div className="p-3 bg-zinc-100 rounded-lg text-zinc-900">
@@ -163,8 +164,105 @@ CREATE POLICY "Permitir todo acceso a repairs" ON repairs FOR ALL USING (true) W
         <SearchInput placeholder="Buscar por motivo, diagnóstico o prioridad..." />
       </div>
 
-      {/* Repairs Table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
+      {/* Mobile Cards View (Visible only on mobile devices) */}
+      <div className="md:hidden space-y-3">
+        {(!repairs || repairs.length === 0) ? (
+          <div className="text-center py-12 px-4 rounded-xl border border-zinc-200 bg-white text-zinc-500">
+            <Wrench className="h-8 w-8 mx-auto text-zinc-300 mb-2" />
+            <p className="font-semibold text-zinc-800 text-sm">No hay órdenes de reparación</p>
+            <p className="text-xs text-zinc-500 mt-1">Toca en "Nueva Orden de Reparación" para registrar un trabajo.</p>
+          </div>
+        ) : (
+          repairs.map((repair: any) => {
+            const vehicle = repair.vehicle
+            const client = vehicle?.client
+            const photoCount = repair.photos?.length || 0
+
+            return (
+              <div key={repair.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-xs space-y-3">
+                {/* Header: Vehicle Plate, Model & Priority */}
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    {vehicle ? (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Badge variant="outline" className="font-mono text-xs uppercase bg-zinc-100 font-bold">
+                          {vehicle.plate}
+                        </Badge>
+                        <span className="font-bold text-zinc-900 text-sm">{vehicle.brand} {vehicle.model}</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-zinc-400 italic">Sin vehículo asignado</span>
+                    )}
+                    <span className="text-[11px] text-zinc-400 flex items-center gap-1 mt-0.5">
+                      <Calendar className="h-3 w-3" />
+                      {new Date(repair.entry_date).toLocaleDateString("es-PY")}
+                    </span>
+                  </div>
+                  {getPriorityBadge(repair.priority)}
+                </div>
+
+                {/* Motivo & Diagnóstico */}
+                <div className="rounded-lg bg-zinc-50 p-2.5 text-xs text-zinc-700 space-y-1">
+                  <p><span className="font-semibold text-zinc-900">Motivo:</span> {repair.reason}</p>
+                  {repair.diagnosis && (
+                    <p className="text-zinc-600 italic"><span className="font-semibold text-zinc-900">Diagnóstico:</span> {repair.diagnosis}</p>
+                  )}
+                </div>
+
+                {/* Cliente & Contacto */}
+                {client && (
+                  <div className="flex items-center justify-between text-xs py-1 border-t border-zinc-100">
+                    <span className="font-medium text-zinc-800">👤 {client.name}</span>
+                    {client.phone && (
+                      <a
+                        href={generateWhatsAppLink(client.phone, `Hola ${client.name}, le saludamos de Taller San Luis sobre su vehículo ${vehicle?.brand} ${vehicle?.model}.`)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md active:bg-emerald-100"
+                      >
+                        <Phone className="h-3 w-3" />
+                        WhatsApp
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                {/* Status Selector & Photos */}
+                <div className="flex items-center justify-between gap-2 pt-1 border-t border-zinc-100">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-medium text-zinc-500">Estado:</span>
+                    <RepairStatusSelect repairId={repair.id} currentStatus={repair.status} variant="badge" />
+                  </div>
+                  {photoCount > 0 && (
+                    <Badge variant="secondary" className="bg-zinc-100 text-zinc-700 text-[11px]">
+                      <ImageIcon className="h-3 w-3 mr-1 text-zinc-500" /> {photoCount} foto(s)
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Quick Actions Footer */}
+                <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-zinc-100 flex-wrap">
+                  <Link
+                    href={`/reparaciones/${repair.id}`}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-md transition-colors"
+                  >
+                    <Eye className="h-3.5 w-3.5" /> Ver Detalle
+                  </Link>
+                  <DigitalBudgetModal repair={repair} />
+                  {vehicle?.id && (
+                    <VehicleHistoryModal vehicleId={vehicle.id} plate={vehicle.plate} brand={vehicle.brand} model={vehicle.model} />
+                  )}
+                  <EditRepairModal repair={repair} />
+                  <DeleteRepairButton repairId={repair.id} reason={repair.reason} />
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {/* Desktop Table (Hidden on small mobile screens) */}
+      <div className="hidden md:block rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
         <Table>
           <TableHeader className="bg-zinc-50 border-b border-zinc-200">
             <TableRow>

@@ -23,16 +23,16 @@ export default async function InventarioPage({ searchParams }: { searchParams: P
   }
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Inventario de Repuestos</h1>
-          <p className="text-sm text-zinc-500">Administra el catálogo de repuestos disponibles para venta y servicios del taller.</p>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">Inventario de Repuestos</h1>
+          <p className="text-xs sm:text-sm text-zinc-500">Administra el catálogo de repuestos disponibles para venta y servicios del taller.</p>
         </div>
 
         <Dialog>
-          <DialogTrigger render={<Button className="bg-zinc-900 text-white hover:bg-zinc-800 shadow-sm" />}>
+          <DialogTrigger render={<Button className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 shadow-sm" />}>
             <Plus className="mr-2 h-4 w-4" /> Registrar Nuevo Repuesto
           </DialogTrigger>
           <DialogContent className="sm:max-w-[550px]">
@@ -79,7 +79,7 @@ CREATE POLICY "Permitir todo acceso a inventory" ON inventory FOR ALL USING (tru
       )}
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card className="bg-white border-zinc-200 shadow-xs">
           <CardContent className="p-4 flex items-center space-x-4">
             <div className="p-3 bg-zinc-100 rounded-lg text-zinc-900">
@@ -94,24 +94,24 @@ CREATE POLICY "Permitir todo acceso a inventory" ON inventory FOR ALL USING (tru
 
         <Card className="bg-white border-zinc-200 shadow-xs">
           <CardContent className="p-4 flex items-center space-x-4">
+            <div className="p-3 bg-red-50 rounded-lg text-red-600">
+              <AlertCircle className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Stock Bajo</p>
+              <p className="text-2xl font-bold text-zinc-900">{lowStockCount}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white border-zinc-200 shadow-xs col-span-2 sm:col-span-1">
+          <CardContent className="p-4 flex items-center space-x-4">
             <div className="p-3 bg-emerald-50 rounded-lg text-emerald-600">
               <DollarSign className="h-5 w-5" />
             </div>
             <div>
               <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Valor del Inventario</p>
-              <p className="text-2xl font-bold text-zinc-900">{formatCurrency(totalInventoryValue)}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-red-50 rounded-lg text-red-600">
-              <AlertCircle className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Stock Bajo (Reposición)</p>
-              <p className="text-2xl font-bold text-zinc-900">{lowStockCount}</p>
+              <p className="text-xl font-bold text-zinc-900">{formatCurrency(totalInventoryValue)}</p>
             </div>
           </CardContent>
         </Card>
@@ -122,8 +122,66 @@ CREATE POLICY "Permitir todo acceso a inventory" ON inventory FOR ALL USING (tru
         <SearchInput placeholder="Buscar por código SKU, descripción, marca o categoría..." />
       </div>
 
-      {/* Inventory Table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
+      {/* Mobile Cards View */}
+      <div className="md:hidden space-y-3">
+        {(!items || items.length === 0) ? (
+          <div className="text-center py-10 px-4 rounded-xl border border-zinc-200 bg-white text-zinc-500 text-sm">
+            {fetchError ? "Sin conexión o tabla pendiente" : "No hay repuestos registrados en el inventario"}
+          </div>
+        ) : (
+          items.map((item: any) => {
+            const isLowStock = item.stock <= (item.min_stock || 3)
+            return (
+              <div key={item.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-xs space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <Badge variant="outline" className="font-mono text-xs uppercase bg-zinc-100 font-bold tracking-wider px-2 py-0.5">
+                      {item.code}
+                    </Badge>
+                    <p className="font-bold text-zinc-900 text-sm mt-1">{item.name}</p>
+                    {item.brand && <p className="text-xs text-zinc-400">Marca: {item.brand}</p>}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-semibold text-zinc-400 uppercase">Precio</p>
+                    <p className="text-sm font-bold text-zinc-900 font-mono">{formatCurrency(item.sale_price)}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 pt-1 border-t border-zinc-100 text-xs">
+                  <Badge variant="secondary" className="bg-zinc-100 text-zinc-700 text-[11px]">
+                    <Tag className="h-3 w-3 mr-1 text-zinc-400" /> {item.category || "General"}
+                  </Badge>
+
+                  {isLowStock ? (
+                    <Badge className="bg-red-100 text-red-800 border-red-200 font-bold text-[11px]">
+                      ⚠️ {item.stock} un. (Stock Bajo)
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-bold text-[11px]">
+                      🟢 {item.stock} un.
+                    </Badge>
+                  )}
+                </div>
+
+                {item.location && (
+                  <p className="text-[11px] text-zinc-500 flex items-center gap-1">
+                    <MapPin className="h-3 w-3 text-zinc-400" /> Ubicación: {item.location}
+                  </p>
+                )}
+
+                <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-zinc-100 flex-wrap">
+                  <AdjustStockModal itemId={item.id} name={item.name} currentStock={item.stock} />
+                  <EditInventoryModal item={item} />
+                  <DeleteInventoryButton itemId={item.id} name={item.name} />
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {/* Desktop Inventory Table */}
+      <div className="hidden md:block rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
         <Table>
           <TableHeader className="bg-zinc-50 border-b border-zinc-200">
             <TableRow>

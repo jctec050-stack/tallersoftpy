@@ -104,25 +104,25 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
       {/* Header with Quick Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Panel Principal</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">Panel Principal</h1>
             <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
               Operativo En Vivo
             </span>
           </div>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-xs sm:text-sm text-zinc-500">
             Resumen general y control operativo del Taller Mecánico San Luis.
           </p>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <Dialog>
-            <DialogTrigger render={<Button variant="outline" className="border-zinc-300 text-zinc-700 hover:bg-zinc-100 shadow-sm" />}>
+            <DialogTrigger render={<Button variant="outline" className="w-full sm:w-auto border-zinc-300 text-zinc-700 hover:bg-zinc-100 shadow-sm" />}>
               <Users className="mr-2 h-4 w-4" /> Nuevo Cliente
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
@@ -134,7 +134,7 @@ export default async function DashboardPage() {
           </Dialog>
 
           <Dialog>
-            <DialogTrigger render={<Button className="bg-zinc-900 text-white hover:bg-zinc-800 shadow-sm" />}>
+            <DialogTrigger render={<Button className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 shadow-sm" />}>
               <Plus className="mr-2 h-4 w-4" /> Nueva Orden de Trabajo
             </DialogTrigger>
             <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
@@ -161,7 +161,7 @@ export default async function DashboardPage() {
       )}
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: OTs Activas */}
         <Link href="/reparaciones" className="group">
           <Card className="border-zinc-200 shadow-sm hover:border-zinc-300 hover:shadow-md transition-all">
@@ -262,7 +262,54 @@ export default async function DashboardPage() {
               </Link>
             </div>
 
-            <div className="overflow-x-auto">
+            {/* Mobile View: Cards */}
+            <div className="md:hidden divide-y divide-zinc-100 p-3 space-y-3">
+              {activeRepairs.length === 0 ? (
+                <div className="text-center py-8 text-zinc-500 text-xs">
+                  No hay reparaciones en curso en este momento.
+                </div>
+              ) : (
+                activeRepairs.slice(0, 6).map((repair: any) => {
+                  const client = repair.vehicle?.client
+                  const vehicle = repair.vehicle
+                  return (
+                    <div key={repair.id} className="pt-3 first:pt-0 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <Badge variant="outline" className="font-mono text-xs uppercase bg-zinc-100 font-bold">
+                              {vehicle?.plate || "S/C"}
+                            </Badge>
+                            <span className="font-bold text-zinc-900 text-sm">
+                              {vehicle?.brand} {vehicle?.model}
+                            </span>
+                          </div>
+                          {client && (
+                            <span className="text-xs text-zinc-500 block mt-0.5">👤 {client.name}</span>
+                          )}
+                        </div>
+                        {getPriorityBadge(repair.priority)}
+                      </div>
+
+                      <p className="text-xs text-zinc-600 line-clamp-1">{repair.reason}</p>
+
+                      <div className="flex items-center justify-between gap-2 pt-1">
+                        <RepairStatusSelect repairId={repair.id} currentStatus={repair.status} variant="badge" />
+                        <Link
+                          href={`/reparaciones/${repair.id}`}
+                          className="px-2.5 py-1 text-xs font-semibold text-zinc-700 bg-zinc-100 rounded-md hover:bg-zinc-200"
+                        >
+                          Ver Detalle
+                        </Link>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+
+            {/* Desktop View: Table */}
+            <div className="hidden md:block overflow-x-auto">
               <Table>
                 <TableHeader className="bg-zinc-50/50">
                   <TableRow>

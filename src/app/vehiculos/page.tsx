@@ -13,11 +13,11 @@ export default async function VehiculosPage({ searchParams }: { searchParams: Pr
   const { vehicles, error: fetchError } = await getVehicles(q);
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Gestión de Vehículos</h1>
-          <p className="text-sm text-zinc-500">Búsqueda global y administración de rodados del taller.</p>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">Gestión de Vehículos</h1>
+          <p className="text-xs sm:text-sm text-zinc-500">Búsqueda global y administración de rodados del taller.</p>
         </div>
         <AddVehicleModal buttonText="Registrar Nuevo Vehículo" />
       </div>
@@ -32,11 +32,60 @@ export default async function VehiculosPage({ searchParams }: { searchParams: Pr
         </div>
       )}
 
-      <div className="mb-6">
+      <div className="w-full sm:max-w-md">
         <SearchInput placeholder="Buscar por chapa, marca o modelo..." />
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
+      {/* Mobile Cards View */}
+      <div className="md:hidden space-y-3">
+        {(!vehicles || vehicles.length === 0) ? (
+          <div className="text-center py-10 px-4 rounded-xl border border-zinc-200 bg-white text-zinc-500 text-sm">
+            {fetchError ? "Sin conexión a la base de datos" : "No se encontraron vehículos."}
+          </div>
+        ) : (
+          vehicles.map((vehicle: any) => (
+            <div key={vehicle.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-xs space-y-2.5">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <Badge variant="outline" className="font-mono text-xs uppercase bg-zinc-100 font-bold tracking-wider px-2.5 py-0.5">
+                    {vehicle.plate}
+                  </Badge>
+                  <p className="font-bold text-zinc-900 text-sm mt-1">
+                    {vehicle.brand} {vehicle.model} <span className="text-zinc-500 font-normal text-xs">({vehicle.year})</span>
+                  </p>
+                </div>
+                <span className="font-mono text-xs text-zinc-600 bg-zinc-50 px-2 py-0.5 rounded border border-zinc-200">
+                  {vehicle.mileage ? `${vehicle.mileage.toLocaleString()} km` : "0 km"}
+                </span>
+              </div>
+
+              {vehicle.client && (
+                <div className="text-xs text-zinc-600 pt-1 border-t border-zinc-100">
+                  <span className="text-zinc-400">Propietario: </span>
+                  <Link href={`/clientes/${vehicle.client_id}`} className="font-semibold text-zinc-900 hover:text-blue-600">
+                    👤 {vehicle.client.name}
+                  </Link>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-1 pt-2 border-t border-zinc-100 flex-wrap">
+                {vehicle.client_id && (
+                  <Link href={`/clientes/${vehicle.client_id}`}>
+                    <Button variant="ghost" size="sm" className="text-xs h-8">
+                      <Eye className="mr-1 h-3.5 w-3.5" /> Cliente
+                    </Button>
+                  </Link>
+                )}
+                <EditVehicleModal vehicle={vehicle} clientId={vehicle.client_id} />
+                <DeleteVehicleButton vehicleId={vehicle.id} plate={vehicle.plate} clientId={vehicle.client_id} />
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden md:block rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-xs">
         <Table>
           <TableHeader className="bg-zinc-50 border-b border-zinc-200">
             <TableRow>

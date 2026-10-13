@@ -122,7 +122,7 @@ export function VehicleForm({ clientId, clients: initialClients, initialData, on
         {errors.client_id && <p className="text-red-500 text-xs">{errors.client_id.message}</p>}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor="plate">Chapa / Matrícula</Label>
           <Input id="plate" {...register("plate")} placeholder="AAA 123" className="uppercase" />
@@ -135,7 +135,7 @@ export function VehicleForm({ clientId, clients: initialClients, initialData, on
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor="brand">Marca</Label>
           <Input id="brand" {...register("brand")} placeholder="Toyota" />
@@ -148,7 +148,7 @@ export function VehicleForm({ clientId, clients: initialClients, initialData, on
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <Label htmlFor="year">Año</Label>
           <Input id="year" type="number" {...register("year")} placeholder="2020" />
