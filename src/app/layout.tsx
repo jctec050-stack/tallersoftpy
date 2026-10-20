@@ -9,6 +9,11 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Taller Mecánico San Luis",
   description: "Sistema de administración operativa para talleres",
+  icons: {
+    icon: "/logotaller.webp",
+    shortcut: "/logotaller.webp",
+    apple: "/logotaller.webp",
+  },
 };
 
 export default function RootLayout({

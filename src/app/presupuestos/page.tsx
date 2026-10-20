@@ -167,16 +167,21 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
                 </div>
 
                 {/* Acciones */}
-                <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-zinc-100 flex-wrap">
-                  <DigitalBudgetModal repair={b} />
-                  <Link
-                    href={`/reparaciones/${b.id}`}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-md transition-colors"
-                  >
-                    <Eye className="h-3.5 w-3.5" /> Detalle
-                  </Link>
-                  <EditRepairModal repair={b} />
-                  <DeleteRepairButton repairId={b.id} reason={b.reason} />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2.5 border-t border-zinc-100">
+                  <div className="w-full sm:w-auto">
+                    <DigitalBudgetModal repair={b} />
+                  </div>
+                  <div className="flex items-center justify-end gap-1.5 shrink-0">
+                    <Link
+                      href={`/reparaciones/${b.id}`}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 rounded-md transition-colors"
+                      title="Ver detalle"
+                    >
+                      <Eye className="h-3.5 w-3.5" /> Detalle
+                    </Link>
+                    <EditRepairModal repair={b} />
+                    <DeleteRepairButton repairId={b.id} reason={b.reason} />
+                  </div>
                 </div>
               </div>
             )

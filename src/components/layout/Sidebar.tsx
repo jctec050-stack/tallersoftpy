@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Wrench, Users, Car, FileText, LayoutDashboard, DollarSign, Settings, UserCheck, Package } from "lucide-react";
 
@@ -20,10 +21,29 @@ export function Sidebar() {
 
   return (
     <div className="hidden md:flex h-screen w-64 flex-col border-r bg-zinc-950 text-zinc-50 shrink-0">
-      <div className="flex h-16 shrink-0 items-center justify-center border-b border-zinc-800 px-4">
-        <Wrench className="mr-2 h-6 w-6 text-zinc-300" />
-        <span className="text-lg font-bold tracking-widest text-zinc-100 uppercase">San Luis</span>
-      </div>
+      <Link
+        href="/"
+        className="flex h-16 shrink-0 items-center gap-3 border-b border-zinc-800 px-4 hover:bg-zinc-900/50 transition-colors"
+      >
+        <div className="relative h-11 w-11 shrink-0 flex items-center justify-center">
+          <Image
+            src="/logotaller.webp"
+            alt="Logo Taller Mecánico San Luis"
+            width={44}
+            height={55}
+            className="h-11 w-auto object-contain drop-shadow"
+            priority
+          />
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="text-sm font-bold tracking-wider text-zinc-100 uppercase truncate">
+            San Luis
+          </span>
+          <span className="text-[10px] text-zinc-400 font-medium tracking-tight truncate">
+            Taller Mecánico
+          </span>
+        </div>
+      </Link>
       <nav className="flex-1 space-y-1 px-3 py-6">
         {links.map((link) => {
           const isActive = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);

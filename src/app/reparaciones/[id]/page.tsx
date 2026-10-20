@@ -179,33 +179,52 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
         {items.length === 0 ? (
           <p className="text-xs text-zinc-400 italic py-4 text-center">Aún no se han agregado ítems al presupuesto de esta orden.</p>
         ) : (
-          <div className="space-y-3 overflow-x-auto">
-            <table className="w-full text-xs text-left border border-zinc-200 rounded-lg overflow-hidden min-w-[480px]">
-              <thead className="bg-zinc-100 text-zinc-700 font-semibold">
-                <tr>
-                  <th className="p-2.5">Descripción</th>
-                  <th className="p-2.5 text-center">Cant.</th>
-                  <th className="p-2.5 text-right">Precio Unitario</th>
-                  <th className="p-2.5 text-right">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-200">
-                {items.map((item: any, idx: number) => (
-                  <tr key={idx} className="hover:bg-zinc-50">
-                    <td className="p-2.5 font-medium text-zinc-900">{item.description}</td>
-                    <td className="p-2.5 text-center text-zinc-600">{item.quantity}</td>
-                    <td className="p-2.5 text-right text-zinc-600">{formatCurrency(item.price)}</td>
-                    <td className="p-2.5 text-right font-semibold text-zinc-900">{formatCurrency(item.total)}</td>
+          <div className="space-y-3">
+            {/* 1. Vista Móvil (Cards) */}
+            <div className="block sm:hidden space-y-2">
+              {items.map((item: any, idx: number) => (
+                <div key={idx} className="bg-zinc-50 border border-zinc-200 rounded-lg p-2.5 space-y-1.5">
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="font-semibold text-zinc-900 text-xs leading-snug">{item.description}</span>
+                    <span className="font-bold text-zinc-900 font-mono text-xs shrink-0">{formatCurrency(item.total)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[11px] text-zinc-500 pt-1 border-t border-zinc-200/60">
+                    <span>Cant: <strong className="text-zinc-700 font-mono">{item.quantity}</strong></span>
+                    <span>P. Unit: <strong className="text-zinc-700 font-mono">{formatCurrency(item.price)}</strong></span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 2. Vista Desktop (Tabla) */}
+            <div className="hidden sm:block overflow-hidden rounded-lg border border-zinc-200">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-zinc-100 text-zinc-700 font-semibold border-b border-zinc-200">
+                  <tr>
+                    <th className="p-2.5">Descripción</th>
+                    <th className="p-2.5 text-center">Cant.</th>
+                    <th className="p-2.5 text-right">Precio Unitario</th>
+                    <th className="p-2.5 text-right">Subtotal</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot className="bg-zinc-900 text-white font-bold">
-                <tr>
-                  <td colSpan={3} className="p-3 text-right uppercase tracking-wider text-xs">Total del Presupuesto:</td>
-                  <td className="p-3 text-right text-sm text-emerald-400">{formatCurrency(totalBudget)}</td>
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-zinc-200">
+                  {items.map((item: any, idx: number) => (
+                    <tr key={idx} className="hover:bg-zinc-50 transition-colors">
+                      <td className="p-2.5 font-medium text-zinc-900">{item.description}</td>
+                      <td className="p-2.5 text-center text-zinc-600 font-mono">{item.quantity}</td>
+                      <td className="p-2.5 text-right text-zinc-600 font-mono">{formatCurrency(item.price)}</td>
+                      <td className="p-2.5 text-right font-semibold text-zinc-900 font-mono">{formatCurrency(item.total)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Total */}
+            <div className="flex justify-between items-center bg-zinc-900 text-white rounded-lg p-3 sm:p-4">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-zinc-300">Total del Presupuesto:</span>
+              <span className="text-base sm:text-xl font-bold font-mono text-emerald-400">{formatCurrency(totalBudget)}</span>
+            </div>
           </div>
         )}
       </div>

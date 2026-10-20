@@ -367,41 +367,67 @@ export function RepairForm({ initialData, preselectedVehicleId, onSuccess }: Rep
         </div>
 
         {/* Tabla de ítems presupuestados */}
+        {/* Lista de ítems presupuestados */}
         {budgetItems.length > 0 && (
-          <div className="border rounded-lg overflow-x-auto text-xs">
-            <table className="w-full text-left min-w-[340px]">
-              <thead className="bg-zinc-100 text-zinc-700 font-semibold border-b">
-                <tr>
-                  <th className="p-2">Ítem / Servicio</th>
-                  <th className="p-2 text-center">Cant.</th>
-                  <th className="p-2 text-right">Unitario</th>
-                  <th className="p-2 text-right">Subtotal</th>
-                  <th className="p-2 text-center"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-200">
-                {budgetItems.map((item, idx) => (
-                  <tr key={idx} className="hover:bg-zinc-50">
-                    <td className="p-2 font-medium text-zinc-900">{item.description}</td>
-                    <td className="p-2 text-center text-zinc-600">{item.quantity}</td>
-                    <td className="p-2 text-right text-zinc-600">{formatCurrency(item.price)}</td>
-                    <td className="p-2 text-right font-semibold text-zinc-900">{formatCurrency(item.total)}</td>
-                    <td className="p-2 text-center">
-                      <button type="button" onClick={() => removeBudgetItem(idx)} className="text-red-500 hover:text-red-700">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </td>
+          <div className="space-y-2">
+            {/* 1. Vista Móvil (Cards) */}
+            <div className="block sm:hidden space-y-2">
+              {budgetItems.map((item, idx) => (
+                <div key={idx} className="bg-white border border-zinc-200 rounded-lg p-2.5 space-y-1.5 shadow-xs">
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="font-semibold text-zinc-900 text-xs leading-snug">{item.description}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeBudgetItem(idx)}
+                      className="text-red-500 hover:text-red-700 p-1 -mr-1 -mt-1"
+                      title="Eliminar ítem"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <div className="flex justify-between items-center text-[11px] text-zinc-500 pt-1 border-t border-zinc-100">
+                    <span>Cant: <strong className="text-zinc-700">{item.quantity}</strong> × {formatCurrency(item.price)}</span>
+                    <span className="font-bold text-zinc-900 font-mono text-xs">{formatCurrency(item.total)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 2. Vista Desktop (Tabla) */}
+            <div className="hidden sm:block border rounded-lg overflow-hidden text-xs">
+              <table className="w-full text-left">
+                <thead className="bg-zinc-100 text-zinc-700 font-semibold border-b">
+                  <tr>
+                    <th className="p-2">Ítem / Servicio</th>
+                    <th className="p-2 text-center">Cant.</th>
+                    <th className="p-2 text-right">Unitario</th>
+                    <th className="p-2 text-right">Subtotal</th>
+                    <th className="p-2 text-center"></th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot className="bg-zinc-900 text-white font-bold">
-                <tr>
-                  <td colSpan={3} className="p-2.5 text-right uppercase tracking-wider text-[11px]">Total Presupuestado:</td>
-                  <td className="p-2.5 text-right text-emerald-400 text-sm">{formatCurrency(totalBudgetCalculated)}</td>
-                  <td></td>
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-zinc-200">
+                  {budgetItems.map((item, idx) => (
+                    <tr key={idx} className="hover:bg-zinc-50">
+                      <td className="p-2 font-medium text-zinc-900">{item.description}</td>
+                      <td className="p-2 text-center text-zinc-600">{item.quantity}</td>
+                      <td className="p-2 text-right text-zinc-600">{formatCurrency(item.price)}</td>
+                      <td className="p-2 text-right font-semibold text-zinc-900">{formatCurrency(item.total)}</td>
+                      <td className="p-2 text-center">
+                        <button type="button" onClick={() => removeBudgetItem(idx)} className="text-red-500 hover:text-red-700">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Total Presupuestado */}
+            <div className="flex justify-between items-center bg-zinc-900 text-white rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm font-bold">
+              <span className="uppercase tracking-wider text-[11px] text-zinc-300">Total Presupuestado:</span>
+              <span className="text-emerald-400 font-mono sm:text-base">{formatCurrency(totalBudgetCalculated)}</span>
+            </div>
           </div>
         )}
       </div>
