@@ -1,6 +1,7 @@
 import { getClientById } from "@/actions/clients"
 import { EditClientModal, DeleteClientButton } from "@/components/clients/ClientActions"
 import { AddVehicleModal, EditVehicleModal, DeleteVehicleButton } from "@/components/vehicles/VehicleActions"
+import { VehicleQrModal } from "@/components/vehicles/VehicleQrModal"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { generateWhatsAppLink } from "@/lib/whatsapp"
@@ -123,7 +124,8 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                       {vehicle.brand} {vehicle.model}
                     </h3>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <VehicleQrModal vehicle={{ ...vehicle, client }} compact />
                     <EditVehicleModal vehicle={vehicle} clientId={client.id} />
                     <DeleteVehicleButton vehicleId={vehicle.id} plate={vehicle.plate} clientId={client.id} />
                   </div>
@@ -141,7 +143,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                   {vehicle.color && (
                     <div>
                       <span className="text-zinc-400 block text-[10px] uppercase font-semibold">Color</span>
-                      <span className="font-medium text-zinc-700 capitalize">🎨 {vehicle.color}</span>
+                      <span className="font-medium text-zinc-700 capitalize">{vehicle.color}</span>
                     </div>
                   )}
                   {vehicle.vin && (
@@ -196,12 +198,13 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                       {vehicle.mileage ? vehicle.mileage.toLocaleString() : 0} km
                     </TableCell>
                     <TableCell className="text-xs text-zinc-500">
-                      {vehicle.color && <span className="mr-2 capitalize">🎨 {vehicle.color}</span>}
+                      {vehicle.color && <span className="mr-2 capitalize">{vehicle.color}</span>}
                       {vehicle.vin && <span className="font-mono text-[11px] block text-zinc-400">VIN: {vehicle.vin}</span>}
                       {!vehicle.color && !vehicle.vin && "-"}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end space-x-1">
+                      <div className="flex items-center justify-end space-x-1.5">
+                        <VehicleQrModal vehicle={{ ...vehicle, client }} />
                         <EditVehicleModal vehicle={vehicle} clientId={client.id} />
                         <DeleteVehicleButton vehicleId={vehicle.id} plate={vehicle.plate} clientId={client.id} />
                       </div>

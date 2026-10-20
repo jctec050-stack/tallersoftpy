@@ -19,7 +19,7 @@ export async function getVehicles(search?: string) {
       return { vehicles: [], error: error.message }
     }
     return { vehicles: data || [], error: null }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Fetch failed in getVehicles:", err)
     return { 
       vehicles: [], 
@@ -28,7 +28,34 @@ export async function getVehicles(search?: string) {
   }
 }
 
-export async function createVehicle(data: any) {
+export async function getVehicleByPlateOrId(identifier: string) {
+  try {
+    const cleanId = decodeURIComponent(identifier).trim()
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId)
+
+    let query = supabase
+      .from("vehicles")
+      .select("*, client:clients(id, name, phone, document, email, address)")
+
+    if (isUuid) {
+      query = query.eq("id", cleanId)
+    } else {
+      query = query.ilike("plate", cleanId)
+    }
+
+    const { data, error } = await query.maybeSingle()
+    if (error) {
+      console.error("Error getVehicleByPlateOrId:", error.message)
+      return null
+    }
+    return data
+  } catch (err: unknown) {
+    console.error("Fetch failed in getVehicleByPlateOrId:", err)
+    return null
+  }
+}
+
+export async function createVehicle(data: Record<string, unknown>) {
   const { error } = await supabase.from("vehicles").insert(data)
   if (error) throw new Error(error.message)
   revalidatePath("/vehiculos")
@@ -38,7 +65,7 @@ export async function createVehicle(data: any) {
   }
 }
 
-export async function updateVehicle(id: string, data: any, clientId?: string) {
+export async function updateVehicle(id: string, data: Record<string, unknown>, clientId?: string) {
   const { error } = await supabase.from("vehicles").update(data).eq("id", id)
   if (error) throw new Error(error.message)
   revalidatePath("/vehiculos")

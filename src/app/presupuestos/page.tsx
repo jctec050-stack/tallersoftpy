@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { SearchInput } from "@/components/ui/search-input"
 import Link from "next/link"
-import { FileText, Plus, Calendar, AlertTriangle, DollarSign, Clock, CheckCircle2, PackageCheck, Eye, Car } from "lucide-react"
+import { FileText, Plus, Calendar, AlertTriangle, DollarSign, Clock, CheckCircle2, PackageCheck, Eye, Car, Receipt } from "lucide-react"
 
 export default async function PresupuestosPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const params = await searchParams
@@ -21,6 +21,7 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
   const pendingCount = budgets?.filter((b: any) => !b.budget_status || b.budget_status === "Pendiente" || b.budget_status === "Borrador" || b.budget_status === "Enviado").length || 0
   const acceptedCount = budgets?.filter((b: any) => b.budget_status === "Aceptado" || b.budget_status === "Aprobado").length || 0
   const deliveredCount = budgets?.filter((b: any) => b.budget_status === "Entregado").length || 0
+  const invoicedCount = budgets?.filter((b: any) => b.budget_status === "Facturado").length || 0
 
   const totalAmountSum = budgets?.reduce((sum: number, b: any) => sum + (b.budget_total || 0), 0) || 0
 
@@ -34,7 +35,7 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">Gestión de Presupuestos</h1>
-          <p className="text-xs sm:text-sm text-zinc-500">Listado de cotizaciones con control rápido de estado (Pendiente, Aceptado, Entregado).</p>
+          <p className="text-xs sm:text-sm text-zinc-500">Listado de cotizaciones con control rápido de estado (Pendiente, Aceptado, Entregado, Facturado).</p>
         </div>
 
         <Dialog>
@@ -62,54 +63,95 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
       )}
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-4">
+        {/* Card 1: Monto Total */}
         <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-emerald-50 rounded-lg text-emerald-600">
-              <DollarSign className="h-5 w-5" />
+          <CardContent className="p-3.5 sm:p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider line-clamp-1">
+                Monto Total
+              </span>
+              <div className="p-1.5 sm:p-2 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">
+                <DollarSign className="h-4 w-4" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Monto Total</p>
-              <p className="text-base sm:text-xl font-bold text-zinc-900">{formatCurrency(totalAmountSum)}</p>
+            <div className="mt-2">
+              <p className="text-sm xs:text-base sm:text-xl font-bold font-mono text-zinc-900 leading-tight">
+                {formatCurrency(totalAmountSum)}
+              </p>
             </div>
           </CardContent>
         </Card>
 
+        {/* Card 2: Pendientes */}
         <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-amber-50 rounded-lg text-amber-600">
-              <Clock className="h-5 w-5" />
+          <CardContent className="p-3.5 sm:p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider line-clamp-1">
+                Pendientes
+              </span>
+              <div className="p-1.5 sm:p-2 bg-amber-50 rounded-lg text-amber-600 shrink-0">
+                <Clock className="h-4 w-4" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Pendientes</p>
-              <p className="text-2xl font-bold text-zinc-900">{pendingCount}</p>
+            <div className="mt-2">
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">{pendingCount}</p>
             </div>
           </CardContent>
         </Card>
 
+        {/* Card 3: Aceptados */}
         <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-blue-50 rounded-lg text-blue-600">
-              <CheckCircle2 className="h-5 w-5" />
+          <CardContent className="p-3.5 sm:p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider line-clamp-1">
+                Aceptados
+              </span>
+              <div className="p-1.5 sm:p-2 bg-blue-50 rounded-lg text-blue-600 shrink-0">
+                <CheckCircle2 className="h-4 w-4" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Aceptados</p>
-              <p className="text-2xl font-bold text-zinc-900">{acceptedCount}</p>
+            <div className="mt-2">
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">{acceptedCount}</p>
             </div>
           </CardContent>
         </Card>
 
+        {/* Card 4: Entregados */}
         <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-zinc-100 rounded-lg text-zinc-800">
-              <PackageCheck className="h-5 w-5" />
+          <CardContent className="p-3.5 sm:p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider line-clamp-1">
+                Entregados
+              </span>
+              <div className="p-1.5 sm:p-2 bg-zinc-100 rounded-lg text-zinc-800 shrink-0">
+                <PackageCheck className="h-4 w-4" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Entregados</p>
-              <p className="text-2xl font-bold text-zinc-900">{deliveredCount}</p>
+            <div className="mt-2">
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">{deliveredCount}</p>
             </div>
           </CardContent>
         </Card>
+
+        {/* Card 5: Facturados */}
+        <Link href="/facturacion" className="group">
+          <Card className="bg-white border-zinc-200 shadow-xs hover:border-purple-300 transition-colors h-full">
+            <CardContent className="p-3.5 sm:p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] sm:text-xs font-semibold text-purple-700 uppercase tracking-wider line-clamp-1">
+                  Facturados
+                </span>
+                <div className="p-1.5 sm:p-2 bg-purple-50 rounded-lg text-purple-600 group-hover:scale-105 transition-transform shrink-0">
+                  <Receipt className="h-4 w-4" />
+                </div>
+              </div>
+              <div className="mt-2">
+                <p className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">{invoicedCount}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Search Input */}
@@ -127,10 +169,9 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
           budgets.map((b: any) => {
             const vehicle = b.vehicle
             const client = vehicle?.client
-            const itemsCount = b.budget_items?.length || 0
 
             return (
-              <div key={b.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-xs space-y-3">
+              <div key={b.id} className="rounded-xl border border-zinc-200 bg-white p-3.5 sm:p-4 shadow-xs space-y-2.5">
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <Badge variant="outline" className="font-mono text-xs uppercase bg-zinc-100 font-bold">
@@ -141,14 +182,14 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-semibold text-zinc-400 uppercase">Total</p>
-                    <p className="text-base font-bold text-emerald-700 font-mono">
+                    <p className="text-[10px] font-semibold text-zinc-400 uppercase">Monto Total</p>
+                    <p className="text-sm sm:text-base font-bold text-emerald-700 font-mono whitespace-nowrap">
                       {formatCurrency(b.budget_total || 0)}
                     </p>
                   </div>
                 </div>
 
-                <div className="text-xs space-y-1 pt-1 border-t border-zinc-100">
+                <div className="text-xs space-y-1 pt-1.5 border-t border-zinc-100">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="font-semibold text-zinc-900">👤 {client?.name || "Sin cliente"}</span>
                     {vehicle && (
@@ -157,7 +198,7 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
                       </span>
                     )}
                   </div>
-                  <p className="text-zinc-600 line-clamp-1">{b.reason}</p>
+                  <p className="text-zinc-700 break-words leading-relaxed">{b.reason}</p>
                 </div>
 
                 {/* Status Toggle Rápido */}
@@ -167,7 +208,7 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
                 </div>
 
                 {/* Acciones */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2.5 border-t border-zinc-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-zinc-100">
                   <div className="w-full sm:w-auto">
                     <DigitalBudgetModal repair={b} />
                   </div>

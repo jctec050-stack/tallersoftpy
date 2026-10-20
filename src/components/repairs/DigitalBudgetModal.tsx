@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { generateWhatsAppLink } from "@/lib/whatsapp"
+import { getAppBaseUrl } from "@/lib/utils"
 import { FileText, Printer, Share2, FileDown, Loader2 } from "lucide-react"
 
-interface BudgetItem {
+export interface BudgetItem {
   id?: string
   description: string
   quantity: number
@@ -16,12 +17,12 @@ interface BudgetItem {
   total: number
 }
 
-interface RepairDetail {
+export interface RepairDetail {
   id: string
-  entry_date: string
+  entry_date?: string
   reason: string
   diagnosis?: string
-  priority: string
+  priority?: string
   status: string
   budget_items?: BudgetItem[]
   budget_total?: number
@@ -30,12 +31,12 @@ interface RepairDetail {
     plate: string
     brand: string
     model: string
-    year: number
-    mileage: number
+    year?: number
+    mileage?: number
     client?: {
       name: string
-      document: string
-      phone: string
+      document?: string
+      phone?: string
       email?: string
       address?: string
     }
@@ -59,7 +60,7 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
   // Generar texto para compartir por WhatsApp
   const generateWhatsAppBudgetText = () => {
     if (!client) return ""
-    const pdfPublicUrl = typeof window !== "undefined" ? `${window.location.origin}/api/repairs/${repair.id}/pdf` : ""
+    const pdfPublicUrl = `${getAppBaseUrl()}/api/repairs/${repair.id}/pdf`
 
     let text = `*PRESUPUESTO DIGITAL - TALLER SAN LUIS*\n`
     text += `-----------------------------------\n`
@@ -78,7 +79,7 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
     }
     text += `Quedamos a su disposición para cualquier duda. ¡Gracias por elegir Taller San Luis!`
     
-    return generateWhatsAppLink(client.phone, text)
+    return generateWhatsAppLink(client.phone || "", text)
   }
 
   const handleSendWhatsApp = async () => {
@@ -188,7 +189,7 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
                 </span>
               </div>
               <span className="text-[11px] sm:text-xs text-zinc-500 block sm:mt-1">
-                Fecha: {new Date(repair.entry_date).toLocaleDateString("es-PY")}
+                Fecha: {repair.entry_date ? new Date(repair.entry_date).toLocaleDateString("es-PY") : "S/F"}
               </span>
             </div>
           </div>
@@ -248,14 +249,14 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
                       className="bg-zinc-50/90 border border-zinc-200 rounded-lg p-2.5 space-y-1.5"
                     >
                       <div className="flex justify-between items-start gap-2">
-                        <span className="font-semibold text-zinc-900 text-xs leading-snug">
+                        <span className="font-semibold text-zinc-900 text-xs leading-snug break-words">
                           {item.description}
                         </span>
-                        <span className="font-bold text-zinc-900 font-mono text-xs shrink-0">
+                        <span className="font-bold text-zinc-900 font-mono text-xs shrink-0 whitespace-nowrap">
                           {formatCurrency(item.total)}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center text-[11px] text-zinc-500 pt-1 border-t border-zinc-200/60">
+                      <div className="flex justify-between items-center text-[11px] text-zinc-500 pt-1 border-t border-zinc-200/60 flex-wrap gap-1">
                         <span>Cant: <strong className="text-zinc-700 font-mono">{item.quantity}</strong></span>
                         <span>P. Unit: <strong className="text-zinc-700 font-mono">{formatCurrency(item.price)}</strong></span>
                       </div>
@@ -288,11 +289,11 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
                 </div>
 
                 {/* Banner de Total (Visible en móvil y desktop) */}
-                <div className="flex justify-between items-center bg-zinc-900 text-white rounded-lg p-3 sm:p-4 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 bg-zinc-900 text-white rounded-lg p-3 sm:p-4 shadow-xs">
                   <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-zinc-300">
                     Total del Presupuesto:
                   </span>
-                  <span className="text-base sm:text-xl font-bold font-mono text-emerald-400">
+                  <span className="text-base sm:text-xl font-bold font-mono text-emerald-400 whitespace-nowrap">
                     {formatCurrency(total)}
                   </span>
                 </div>

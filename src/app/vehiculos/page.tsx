@@ -1,5 +1,6 @@
 import { getVehicles } from "@/actions/vehicles"
 import { AddVehicleModal, EditVehicleModal, DeleteVehicleButton } from "@/components/vehicles/VehicleActions"
+import { VehicleQrModal } from "@/components/vehicles/VehicleQrModal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -54,7 +55,7 @@ export default async function VehiculosPage({ searchParams }: { searchParams: Pr
                     {vehicle.brand} {vehicle.model} <span className="text-zinc-500 font-normal text-xs">({vehicle.year})</span>
                   </p>
                 </div>
-                <span className="font-mono text-xs text-zinc-600 bg-zinc-50 px-2 py-0.5 rounded border border-zinc-200">
+                <span className="font-mono text-xs text-zinc-600 bg-zinc-50 px-2 py-0.5 rounded border border-zinc-200 shrink-0">
                   {vehicle.mileage ? `${vehicle.mileage.toLocaleString()} km` : "0 km"}
                 </span>
               </div>
@@ -68,16 +69,19 @@ export default async function VehiculosPage({ searchParams }: { searchParams: Pr
                 </div>
               )}
 
-              <div className="flex items-center justify-end gap-1 pt-2 border-t border-zinc-100 flex-wrap">
-                {vehicle.client_id && (
-                  <Link href={`/clientes/${vehicle.client_id}`}>
-                    <Button variant="ghost" size="sm" className="text-xs h-8">
-                      <Eye className="mr-1 h-3.5 w-3.5" /> Cliente
-                    </Button>
-                  </Link>
-                )}
-                <EditVehicleModal vehicle={vehicle} clientId={vehicle.client_id} />
-                <DeleteVehicleButton vehicleId={vehicle.id} plate={vehicle.plate} clientId={vehicle.client_id} />
+              <div className="flex items-center justify-between gap-1 pt-2 border-t border-zinc-100 flex-wrap">
+                <VehicleQrModal vehicle={vehicle} />
+                <div className="flex items-center gap-1">
+                  {vehicle.client_id && (
+                    <Link href={`/clientes/${vehicle.client_id}`}>
+                      <Button variant="ghost" size="sm" className="text-xs h-8">
+                        <Eye className="mr-1 h-3.5 w-3.5" /> Cliente
+                      </Button>
+                    </Link>
+                  )}
+                  <EditVehicleModal vehicle={vehicle} clientId={vehicle.client_id} />
+                  <DeleteVehicleButton vehicleId={vehicle.id} plate={vehicle.plate} clientId={vehicle.client_id} />
+                </div>
               </div>
             </div>
           ))
@@ -127,10 +131,11 @@ export default async function VehiculosPage({ searchParams }: { searchParams: Pr
                     {vehicle.mileage ? vehicle.mileage.toLocaleString() : 0} km
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end space-x-1">
+                    <div className="flex items-center justify-end space-x-1.5">
+                      <VehicleQrModal vehicle={vehicle} />
                       {vehicle.client_id && (
                         <Link href={`/clientes/${vehicle.client_id}`}>
-                          <Button variant="ghost" size="sm" className="text-zinc-600 hover:text-zinc-900">
+                          <Button variant="ghost" size="sm" className="text-zinc-600 hover:text-zinc-900 h-8 text-xs">
                             <Eye className="mr-1 h-3.5 w-3.5" /> Ver Cliente
                           </Button>
                         </Link>

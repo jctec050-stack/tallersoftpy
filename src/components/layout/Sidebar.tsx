@@ -3,10 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Wrench, Users, Car, FileText, LayoutDashboard, DollarSign, Settings, UserCheck, Package } from "lucide-react";
+import { Wrench, Users, Car, FileText, LayoutDashboard, Receipt, Settings, UserCheck, Package } from "lucide-react";
 
 export function Sidebar() {
   const pathname = usePathname();
+
+  if (pathname.startsWith("/v/")) {
+    return null;
+  }
 
   const links = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -16,7 +20,7 @@ export function Sidebar() {
     { name: "Mecánicos", href: "/mecanicos", icon: UserCheck },
     { name: "Presupuestos", href: "/presupuestos", icon: FileText },
     { name: "Inventario", href: "/inventario", icon: Package },
-    { name: "Cobranzas", href: "/cobranzas", icon: DollarSign },
+    { name: "Facturación", href: "/facturacion", icon: Receipt },
   ];
 
   return (

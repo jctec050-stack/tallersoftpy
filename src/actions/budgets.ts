@@ -20,7 +20,7 @@ export async function getBudgets(search?: string) {
       return { budgets: [], error: error.message }
     }
     return { budgets: data || [], error: null }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Fetch failed in getBudgets:", err)
     return { 
       budgets: [], 
@@ -29,7 +29,7 @@ export async function getBudgets(search?: string) {
   }
 }
 
-export async function updateBudgetStatus(repairId: string, newStatus: "Pendiente" | "Aceptado" | "Entregado") {
+export async function updateBudgetStatus(repairId: string, newStatus: "Pendiente" | "Aceptado" | "Entregado" | "Facturado") {
   try {
     const { error } = await supabase
       .from("repairs")
@@ -37,11 +37,40 @@ export async function updateBudgetStatus(repairId: string, newStatus: "Pendiente
       .eq("id", repairId)
 
     if (error) throw new Error(error.message)
+    revalidatePath("/facturacion")
+    revalidatePath("/cobranzas")
     revalidatePath("/presupuestos")
     revalidatePath("/reparaciones")
     revalidatePath(`/reparaciones/${repairId}`)
+    revalidatePath("/")
     return { success: true }
-  } catch (err: any) {
-    throw new Error(err.message || "Error al actualizar el estado del presupuesto")
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Error al actualizar el estado del presupuesto"
+    throw new Error(message)
+  }
+}
+
+export async function invoiceBudgets(repairIds: string[]) {
+  try {
+    if (!repairIds || repairIds.length === 0) {
+      throw new Error("Debe seleccionar al menos un presupuesto para facturar.")
+    }
+
+    const { error } = await supabase
+      .from("repairs")
+      .update({ budget_status: "Facturado" })
+      .in("id", repairIds)
+
+    if (error) throw new Error(error.message)
+
+    revalidatePath("/facturacion")
+    revalidatePath("/cobranzas")
+    revalidatePath("/presupuestos")
+    revalidatePath("/reparaciones")
+    revalidatePath("/")
+    return { success: true }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Error al facturar los presupuestos seleccionados"
+    throw new Error(message)
   }
 }

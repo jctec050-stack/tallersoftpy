@@ -10,7 +10,7 @@ import {
   Car,
   FileText,
   LayoutDashboard,
-  DollarSign,
+  Receipt,
   Settings,
   UserCheck,
   Package,
@@ -48,7 +48,7 @@ export function MobileNav() {
     { name: "Mecánicos", href: "/mecanicos", icon: UserCheck },
     { name: "Presupuestos", href: "/presupuestos", icon: FileText },
     { name: "Inventario", href: "/inventario", icon: Package },
-    { name: "Cobranzas", href: "/cobranzas", icon: DollarSign },
+    { name: "Facturación", href: "/facturacion", icon: Receipt },
   ]
 
   // Atajos rápidos para la barra inferior
@@ -58,6 +58,10 @@ export function MobileNav() {
     { name: "Clientes", href: "/clientes", icon: Users },
     { name: "Vehículos", href: "/vehiculos", icon: Car },
   ]
+
+  if (pathname.startsWith("/v/")) {
+    return null
+  }
 
   return (
     <>

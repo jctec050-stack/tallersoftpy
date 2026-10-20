@@ -3,10 +3,9 @@
 import { useState } from "react"
 import { updateBudgetStatus } from "@/actions/budgets"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Loader2, Check, Clock, CheckCircle2, PackageCheck } from "lucide-react"
+import { Loader2, Clock, CheckCircle2, PackageCheck } from "lucide-react"
 
-type BudgetStatus = "Pendiente" | "Aceptado" | "Entregado"
+type BudgetStatus = "Pendiente" | "Aceptado" | "Entregado" | "Facturado"
 
 interface BudgetStatusToggleProps {
   repairId: string
@@ -15,7 +14,7 @@ interface BudgetStatusToggleProps {
 
 export function BudgetStatusToggle({ repairId, currentStatus }: BudgetStatusToggleProps) {
   // Normalizar el estado actual
-  const normalizedStatus = (["Aceptado", "Entregado"].includes(currentStatus) 
+  const normalizedStatus = (["Aceptado", "Entregado", "Facturado"].includes(currentStatus) 
     ? currentStatus 
     : "Pendiente") as BudgetStatus
 
@@ -30,12 +29,32 @@ export function BudgetStatusToggle({ repairId, currentStatus }: BudgetStatusTogg
 
     try {
       await updateBudgetStatus(repairId, newStatus)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus(prevStatus)
-      alert(err.message || "No se pudo cambiar el estado del presupuesto")
+      const msg = err instanceof Error ? err.message : "No se pudo cambiar el estado del presupuesto"
+      alert(msg)
     } finally {
       setLoading(false)
     }
+  }
+
+  if (status === "Facturado") {
+    return (
+      <div className="flex items-center gap-2 flex-wrap">
+        <Badge className="bg-purple-100 text-purple-800 border-purple-200 font-semibold px-2.5 py-1 text-xs">
+          🧾 Facturado
+        </Badge>
+        <button
+          type="button"
+          onClick={() => handleStatusChange("Entregado")}
+          disabled={loading}
+          className="text-[11px] text-zinc-500 hover:text-zinc-800 underline transition-colors cursor-pointer"
+          title="Revertir estado a Entregado"
+        >
+          {loading ? "Revertiendo..." : "Deshacer"}
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -45,7 +64,7 @@ export function BudgetStatusToggle({ repairId, currentStatus }: BudgetStatusTogg
         type="button"
         onClick={() => handleStatusChange("Pendiente")}
         disabled={loading}
-        className={`w-full sm:w-auto px-2 py-1.5 sm:px-2.5 sm:py-1 text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1 ${
+        className={`w-full sm:w-auto px-1.5 py-1 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1 whitespace-nowrap ${
           status === "Pendiente"
             ? "bg-amber-500 text-white shadow-xs"
             : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60"
@@ -53,7 +72,7 @@ export function BudgetStatusToggle({ repairId, currentStatus }: BudgetStatusTogg
         title="Marcar como Pendiente"
       >
         <Clock className="h-3 w-3 shrink-0" />
-        <span className="truncate">Pendiente</span>
+        <span>Pendiente</span>
       </button>
 
       {/* Botón Aceptado */}
@@ -61,7 +80,7 @@ export function BudgetStatusToggle({ repairId, currentStatus }: BudgetStatusTogg
         type="button"
         onClick={() => handleStatusChange("Aceptado")}
         disabled={loading}
-        className={`w-full sm:w-auto px-2 py-1.5 sm:px-2.5 sm:py-1 text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1 ${
+        className={`w-full sm:w-auto px-1.5 py-1 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1 whitespace-nowrap ${
           status === "Aceptado"
             ? "bg-blue-600 text-white shadow-xs"
             : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60"
@@ -69,7 +88,7 @@ export function BudgetStatusToggle({ repairId, currentStatus }: BudgetStatusTogg
         title="Marcar como Aceptado"
       >
         <CheckCircle2 className="h-3 w-3 shrink-0" />
-        <span className="truncate">Aceptado</span>
+        <span>Aceptado</span>
       </button>
 
       {/* Botón Entregado */}
@@ -77,7 +96,7 @@ export function BudgetStatusToggle({ repairId, currentStatus }: BudgetStatusTogg
         type="button"
         onClick={() => handleStatusChange("Entregado")}
         disabled={loading}
-        className={`w-full sm:w-auto px-2 py-1.5 sm:px-2.5 sm:py-1 text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1 ${
+        className={`w-full sm:w-auto px-1.5 py-1 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1 whitespace-nowrap ${
           status === "Entregado"
             ? "bg-emerald-600 text-white shadow-xs"
             : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/60"
@@ -85,7 +104,7 @@ export function BudgetStatusToggle({ repairId, currentStatus }: BudgetStatusTogg
         title="Marcar como Entregado"
       >
         <PackageCheck className="h-3 w-3 shrink-0" />
-        <span className="truncate">Entregado</span>
+        <span>Entregado</span>
       </button>
 
       {loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-500 ml-1 hidden sm:inline-block" />}

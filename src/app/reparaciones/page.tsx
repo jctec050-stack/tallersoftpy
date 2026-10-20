@@ -109,51 +109,67 @@ CREATE POLICY "Permitir todo acceso a repairs" ON repairs FOR ALL USING (true) W
       )}
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
         <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-zinc-100 rounded-lg text-zinc-900">
-              <Wrench className="h-5 w-5" />
+          <CardContent className="p-3.5 sm:p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider line-clamp-1">
+                Activas
+              </span>
+              <div className="p-1.5 sm:p-2 bg-zinc-100 rounded-lg text-zinc-900 shrink-0">
+                <Wrench className="h-4 w-4" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Activas</p>
-              <p className="text-2xl font-bold text-zinc-900">{activeRepairs}</p>
+            <div className="mt-2">
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">{activeRepairs}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-red-50 rounded-lg text-red-600">
-              <ShieldAlert className="h-5 w-5" />
+          <CardContent className="p-3.5 sm:p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider line-clamp-1">
+                Alta Prioridad
+              </span>
+              <div className="p-1.5 sm:p-2 bg-red-50 rounded-lg text-red-600 shrink-0">
+                <ShieldAlert className="h-4 w-4" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Alta Prioridad</p>
-              <p className="text-2xl font-bold text-zinc-900">{highPriorityCount}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-purple-50 rounded-lg text-purple-600">
-              <Clock className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Presupuestados</p>
-              <p className="text-2xl font-bold text-zinc-900">{budgetedCount}</p>
+            <div className="mt-2">
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">{highPriorityCount}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-emerald-50 rounded-lg text-emerald-600">
-              <CheckCircle2 className="h-5 w-5" />
+          <CardContent className="p-3.5 sm:p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider line-clamp-1">
+                Presupuestados
+              </span>
+              <div className="p-1.5 sm:p-2 bg-purple-50 rounded-lg text-purple-600 shrink-0">
+                <Clock className="h-4 w-4" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Completados</p>
-              <p className="text-2xl font-bold text-zinc-900">{completedCount}</p>
+            <div className="mt-2">
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">{budgetedCount}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white border-zinc-200 shadow-xs">
+          <CardContent className="p-3.5 sm:p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider line-clamp-1">
+                Completados
+              </span>
+              <div className="p-1.5 sm:p-2 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">
+                <CheckCircle2 className="h-4 w-4" />
+              </div>
+            </div>
+            <div className="mt-2">
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">{completedCount}</p>
             </div>
           </CardContent>
         </Card>
@@ -203,9 +219,9 @@ CREATE POLICY "Permitir todo acceso a repairs" ON repairs FOR ALL USING (true) W
 
                 {/* Motivo & Diagnóstico */}
                 <div className="rounded-lg bg-zinc-50 p-2.5 text-xs text-zinc-700 space-y-1">
-                  <p><span className="font-semibold text-zinc-900">Motivo:</span> {repair.reason}</p>
+                  <p className="break-words leading-relaxed"><span className="font-semibold text-zinc-900">Motivo:</span> {repair.reason}</p>
                   {repair.diagnosis && (
-                    <p className="text-zinc-600 italic"><span className="font-semibold text-zinc-900">Diagnóstico:</span> {repair.diagnosis}</p>
+                    <p className="text-zinc-600 italic break-words leading-relaxed"><span className="font-semibold text-zinc-900">Diagnóstico:</span> {repair.diagnosis}</p>
                   )}
                 </div>
 

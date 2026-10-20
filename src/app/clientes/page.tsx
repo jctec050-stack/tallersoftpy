@@ -58,39 +58,51 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
         <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-zinc-100 rounded-lg text-zinc-900">
-              <Users className="h-5 w-5" />
+          <CardContent className="p-3.5 sm:p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider line-clamp-1">
+                Total Clientes
+              </span>
+              <div className="p-1.5 sm:p-2 bg-zinc-100 rounded-lg text-zinc-900 shrink-0">
+                <Users className="h-4 w-4" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Total Clientes</p>
-              <p className="text-2xl font-bold text-zinc-900">{totalClients}</p>
+            <div className="mt-2">
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">{totalClients}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-white border-zinc-200 shadow-xs">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-blue-50 rounded-lg text-blue-600">
-              <UserCheck className="h-5 w-5" />
+          <CardContent className="p-3.5 sm:p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider line-clamp-1">
+                Con Vehículos
+              </span>
+              <div className="p-1.5 sm:p-2 bg-blue-50 rounded-lg text-blue-600 shrink-0">
+                <UserCheck className="h-4 w-4" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Con Vehículos</p>
-              <p className="text-2xl font-bold text-zinc-900">{clientsWithVehicles}</p>
+            <div className="mt-2">
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">{clientsWithVehicles}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-white border-zinc-200 shadow-xs col-span-2 sm:col-span-1">
-          <CardContent className="p-4 flex items-center space-x-4">
-            <div className="p-3 bg-emerald-50 rounded-lg text-emerald-600">
-              <Car className="h-5 w-5" />
+          <CardContent className="p-3.5 sm:p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] sm:text-xs font-medium text-zinc-500 uppercase tracking-wider line-clamp-1">
+                Vehículos Flota
+              </span>
+              <div className="p-1.5 sm:p-2 bg-emerald-50 rounded-lg text-emerald-600 shrink-0">
+                <Car className="h-4 w-4" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Vehículos Registrados</p>
-              <p className="text-2xl font-bold text-zinc-900">{totalVehiclesCount}</p>
+            <div className="mt-2">
+              <p className="text-xl sm:text-2xl font-bold text-zinc-900 leading-tight">{totalVehiclesCount}</p>
             </div>
           </CardContent>
         </Card>

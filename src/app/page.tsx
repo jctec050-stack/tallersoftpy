@@ -60,9 +60,11 @@ export default async function DashboardPage() {
   const highPriorityActive = activeRepairs.filter(r => r.priority === "Alta")
 
   const totalBilled = repairs.reduce((acc, r) => acc + (r.budget_total || 0), 0)
-  const totalCollected = repairs
-    .filter(r => r.status === "Entregado" || r.budget_status === "Entregado")
+  const totalInvoiced = repairs
+    .filter(r => r.budget_status === "Facturado")
     .reduce((acc, r) => acc + (r.budget_total || 0), 0)
+  const pendingToInvoiceCount = repairs
+    .filter(r => r.budget_status === "Entregado" || (r.status === "Entregado" && r.budget_status !== "Facturado")).length
 
   const lowStockItems = inventoryItems.filter(i => (i.stock || 0) <= (i.min_stock || 3))
   const activeMechanics = mechanics.filter(m => m.status === "Activo")
@@ -161,22 +163,24 @@ export default async function DashboardPage() {
       )}
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* Card 1: OTs Activas */}
         <Link href="/reparaciones" className="group">
-          <Card className="border-zinc-200 shadow-sm hover:border-zinc-300 hover:shadow-md transition-all">
-            <CardContent className="p-6">
+          <Card className="border-zinc-200 shadow-sm hover:border-zinc-300 hover:shadow-md transition-all h-full">
+            <CardContent className="p-3.5 sm:p-5">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">OTs en Taller</p>
-                  <h3 className="text-3xl font-bold text-zinc-900 mt-1">{activeRepairs.length}</h3>
-                  <p className="text-xs text-zinc-500 mt-1">
-                    <span className="font-semibold text-blue-600">{inRepairCount}</span> en proceso · <span className="font-semibold text-amber-600">{inDiagCount}</span> en diag.
-                  </p>
+                <span className="text-[11px] sm:text-xs font-semibold text-zinc-500 uppercase tracking-wider line-clamp-1">
+                  OTs en Taller
+                </span>
+                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform shrink-0">
+                  <Wrench className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
-                  <Wrench className="h-6 w-6" />
-                </div>
+              </div>
+              <div className="mt-2 sm:mt-3">
+                <h3 className="text-xl sm:text-3xl font-bold text-zinc-900 leading-tight">{activeRepairs.length}</h3>
+                <p className="text-[11px] sm:text-xs text-zinc-500 mt-1 leading-snug">
+                  <span className="font-semibold text-blue-600">{inRepairCount}</span> proc. · <span className="font-semibold text-amber-600">{inDiagCount}</span> diag.
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -184,19 +188,21 @@ export default async function DashboardPage() {
 
         {/* Card 2: Vehículos Registrados */}
         <Link href="/vehiculos" className="group">
-          <Card className="border-zinc-200 shadow-sm hover:border-zinc-300 hover:shadow-md transition-all">
-            <CardContent className="p-6">
+          <Card className="border-zinc-200 shadow-sm hover:border-zinc-300 hover:shadow-md transition-all h-full">
+            <CardContent className="p-3.5 sm:p-5">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Parque de Vehículos</p>
-                  <h3 className="text-3xl font-bold text-zinc-900 mt-1">{vehicles.length}</h3>
-                  <p className="text-xs text-zinc-500 mt-1">
-                    <span className="font-semibold text-zinc-800">{clients.length}</span> clientes registrados
-                  </p>
+                <span className="text-[11px] sm:text-xs font-semibold text-zinc-500 uppercase tracking-wider line-clamp-1">
+                  Vehículos
+                </span>
+                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-700 group-hover:scale-105 transition-transform shrink-0">
+                  <Car className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <div className="h-12 w-12 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-700 group-hover:scale-105 transition-transform">
-                  <Car className="h-6 w-6" />
-                </div>
+              </div>
+              <div className="mt-2 sm:mt-3">
+                <h3 className="text-xl sm:text-3xl font-bold text-zinc-900 leading-tight">{vehicles.length}</h3>
+                <p className="text-[11px] sm:text-xs text-zinc-500 mt-1 leading-snug">
+                  <span className="font-semibold text-zinc-800">{clients.length}</span> clientes registrados
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -204,39 +210,45 @@ export default async function DashboardPage() {
 
         {/* Card 3: Presupuestos por Responder */}
         <Link href="/presupuestos" className="group">
-          <Card className="border-zinc-200 shadow-sm hover:border-zinc-300 hover:shadow-md transition-all">
-            <CardContent className="p-6">
+          <Card className="border-zinc-200 shadow-sm hover:border-zinc-300 hover:shadow-md transition-all h-full">
+            <CardContent className="p-3.5 sm:p-5">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-amber-600 uppercase tracking-wider">Presupuestos Pendientes</p>
-                  <h3 className="text-3xl font-bold text-amber-700 mt-1">{pendingBudgets.length}</h3>
-                  <p className="text-xs text-amber-600/80 mt-1">
-                    Requieren respuesta de cliente
-                  </p>
+                <span className="text-[11px] sm:text-xs font-semibold text-amber-600 uppercase tracking-wider line-clamp-1">
+                  Pendientes
+                </span>
+                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:scale-105 transition-transform shrink-0">
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <div className="h-12 w-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:scale-105 transition-transform">
-                  <Clock className="h-6 w-6" />
-                </div>
+              </div>
+              <div className="mt-2 sm:mt-3">
+                <h3 className="text-xl sm:text-3xl font-bold text-amber-700 leading-tight">{pendingBudgets.length}</h3>
+                <p className="text-[11px] sm:text-xs text-amber-600/90 mt-1 leading-snug">
+                  Esperando respuesta
+                </p>
               </div>
             </CardContent>
           </Card>
         </Link>
 
-        {/* Card 4: Total Cobrado / Entregado */}
-        <Link href="/cobranzas" className="group">
-          <Card className="border-zinc-200 shadow-sm hover:border-zinc-300 hover:shadow-md transition-all">
-            <CardContent className="p-6">
+        {/* Card 4: Facturación / Entregados */}
+        <Link href="/facturacion" className="group">
+          <Card className="border-zinc-200 shadow-sm hover:border-purple-300 hover:shadow-md transition-all h-full">
+            <CardContent className="p-3.5 sm:p-5">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider">Total Cobrado</p>
-                  <h3 className="text-2xl font-bold text-emerald-700 mt-1">{formatCurrency(totalCollected)}</h3>
-                  <p className="text-xs text-emerald-600/80 mt-1">
-                    Facturado: {formatCurrency(totalBilled)}
-                  </p>
+                <span className="text-[11px] sm:text-xs font-semibold text-purple-700 uppercase tracking-wider line-clamp-1">
+                  Facturación
+                </span>
+                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 group-hover:scale-105 transition-transform shrink-0">
+                  <Receipt className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <div className="h-12 w-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform">
-                  <DollarSign className="h-6 w-6" />
-                </div>
+              </div>
+              <div className="mt-2 sm:mt-3">
+                <h3 className="text-sm xs:text-base sm:text-2xl font-bold font-mono text-zinc-900 leading-tight">
+                  {formatCurrency(totalInvoiced)}
+                </h3>
+                <p className="text-[11px] sm:text-xs text-amber-700 font-medium mt-1 leading-snug">
+                  {pendingToInvoiceCount} {pendingToInvoiceCount === 1 ? "listo para facturar" : "listos para facturar"}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -248,14 +260,14 @@ export default async function DashboardPage() {
         {/* Left Column (2 cols): Órdenes de Trabajo en Curso */}
         <div className="lg:col-span-2 space-y-6">
           <Card className="border-zinc-200 shadow-sm">
-            <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
+            <div className="p-4 sm:p-6 border-b border-zinc-100 flex items-center justify-between">
               <div>
-                <h2 className="text-base font-semibold text-zinc-900">Órdenes de Trabajo en Taller</h2>
+                <h2 className="text-sm sm:text-base font-semibold text-zinc-900">Órdenes de Trabajo en Taller</h2>
                 <p className="text-xs text-zinc-500">Reparaciones activas ingresadas y en proceso de atención.</p>
               </div>
               <Link
                 href="/reparaciones"
-                className="text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1 group"
+                className="text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1 group shrink-0"
               >
                 Ver todas ({repairs.length})
                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -291,7 +303,7 @@ export default async function DashboardPage() {
                         {getPriorityBadge(repair.priority)}
                       </div>
 
-                      <p className="text-xs text-zinc-600 line-clamp-1">{repair.reason}</p>
+                      <p className="text-xs text-zinc-700 break-words leading-relaxed">{repair.reason}</p>
 
                       <div className="flex items-center justify-between gap-2 pt-1">
                         <RepairStatusSelect repairId={repair.id} currentStatus={repair.status} variant="badge" />
@@ -456,9 +468,16 @@ export default async function DashboardPage() {
               <CardDescription className="text-xs">Repuestos que requieren reposición</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {lowStockItems.length === 0 ? (
-                <div className="rounded-lg bg-emerald-50 p-3 text-center text-xs text-emerald-800">
-                  ✅ Todos los repuestos cuentan con stock suficiente.
+              {inventoryItems.length === 0 ? (
+                <div className="rounded-lg bg-zinc-50 border border-zinc-200/80 p-3 text-center text-xs text-zinc-500 space-y-1.5">
+                  <p>📦 No hay repuestos registrados en el inventario.</p>
+                  <Link href="/inventario" className="inline-block text-blue-600 hover:underline font-semibold">
+                    Registrar repuesto →
+                  </Link>
+                </div>
+              ) : lowStockItems.length === 0 ? (
+                <div className="rounded-lg bg-emerald-50 border border-emerald-200/80 p-3 text-center text-xs text-emerald-800">
+                  ✅ Todos los repuestos ({inventoryItems.length}) cuentan con stock suficiente.
                 </div>
               ) : (
                 <div className="space-y-2">
