@@ -139,7 +139,7 @@ export default async function DashboardPage() {
             <DialogTrigger render={<Button className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 shadow-sm" />}>
               <Plus className="mr-2 h-4 w-4" /> Nueva Orden de Trabajo
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto overflow-x-hidden">
               <DialogHeader>
                 <DialogTitle>Registrar Nueva Orden de Reparación</DialogTitle>
               </DialogHeader>

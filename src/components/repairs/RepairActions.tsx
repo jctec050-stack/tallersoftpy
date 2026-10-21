@@ -15,7 +15,7 @@ export function EditRepairModal({ repair }: { repair: RepairData }) {
       <DialogTrigger render={<Button variant="ghost" size="sm" className="text-zinc-600 hover:text-zinc-900" />}>
         <Edit className="h-4 w-4 mr-1" /> Editar
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle>Editar Orden de Reparación</DialogTitle>
         </DialogHeader>

@@ -27,6 +27,7 @@ export interface RepairData {
   budget_items?: BudgetItem[]
   budget_total?: number
   budget_status?: "Borrador" | "Enviado" | "Aprobado" | "Rechazado"
+  mileage?: number | null
   vehicle?: {
     id?: string
     plate?: string
@@ -104,8 +105,17 @@ export async function getVehicleRepairHistory(vehicleId: string) {
 
 export async function createRepair(data: RepairData) {
   const { vehicle, ...dbPayload } = data
-  const { error } = await supabase.from("repairs").insert(dbPayload)
-  if (error) throw new Error(error.message)
+  let insertPayload: any = { ...dbPayload }
+  const { error } = await supabase.from("repairs").insert(insertPayload)
+  if (error) {
+    if (error.message?.includes("mileage") && insertPayload.mileage !== undefined) {
+      delete insertPayload.mileage
+      const { error: retryErr } = await supabase.from("repairs").insert(insertPayload)
+      if (retryErr) throw new Error(retryErr.message)
+    } else {
+      throw new Error(error.message)
+    }
+  }
 
   // Descontar repuestos del inventario utilizados en el presupuesto
   if (data.budget_items && data.budget_items.length > 0) {
@@ -135,8 +145,17 @@ export async function updateRepair(id: string, data: Partial<RepairData>) {
   }
 
   const { vehicle, ...dbPayload } = data
-  const { error } = await supabase.from("repairs").update(dbPayload).eq("id", id)
-  if (error) throw new Error(error.message)
+  let updatePayload: any = { ...dbPayload }
+  const { error } = await supabase.from("repairs").update(updatePayload).eq("id", id)
+  if (error) {
+    if (error.message?.includes("mileage") && updatePayload.mileage !== undefined) {
+      delete updatePayload.mileage
+      const { error: retryErr } = await supabase.from("repairs").update(updatePayload).eq("id", id)
+      if (retryErr) throw new Error(retryErr.message)
+    } else {
+      throw new Error(error.message)
+    }
+  }
 
   // Sincronizar stock con la diferencia neta de cantidades
   if (data.budget_items) {

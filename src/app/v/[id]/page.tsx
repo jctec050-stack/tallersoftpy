@@ -18,6 +18,8 @@ import {
   Disc,
   RotateCw,
   Droplet,
+  Cog,
+  ClipboardCheck,
 } from "lucide-react"
 
 interface BudgetItem {
@@ -34,6 +36,7 @@ interface RepairHistoryItem {
   budget_total: number | null
   reason: string
   diagnosis: string | null
+  mileage?: number | null
   mechanic?: {
     name: string
   } | null
@@ -98,12 +101,35 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
   const intervalDays = 180
   const daysRemaining = intervalDays - daysSinceLastService
 
-  // Kilometraje estimado para el próximo service
+  // Kilometraje estimado para el próximo service de motor
   const nextServiceMileage =
     currentMileage > 0
       ? Math.ceil((currentMileage + 500) / 5000) * 5000
       : 5000
   const kmRemaining = Math.max(0, nextServiceMileage - currentMileage)
+
+  // Kilometraje estimado para aceite de caja & diferencial (cada 40.000 km)
+  const nextGearboxMileage =
+    currentMileage > 0
+      ? Math.ceil((currentMileage + 2000) / 40000) * 40000
+      : 40000
+
+  // Kilometraje estimado para revisión completa integral (cada 20.000 km)
+  const nextFullReviewMileage =
+    currentMileage > 0
+      ? Math.ceil((currentMileage + 1000) / 20000) * 20000
+      : 20000
+
+  // Kilometraje estimado para frenos y alineación (cada 10.000 km)
+  const nextBrakesMileage =
+    currentMileage > 0
+      ? Math.ceil((currentMileage + 500) / 10000) * 10000
+      : 10000
+
+  const nextAlignmentMileage =
+    currentMileage > 0
+      ? Math.ceil((currentMileage + 500) / 10000) * 10000
+      : 10000
 
   // Próxima fecha estimada
   const nextServiceEstimatedDate = new Date(lastServiceDate)
@@ -277,18 +303,32 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
           </p>
 
           {/* Métricas del Próximo Servicio */}
-          <div className="grid grid-cols-2 gap-2 pt-1 text-center text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-center text-xs">
             <div className="bg-white/80 rounded-xl p-2.5 border border-black/5 shadow-2xs">
-              <span className="text-[10px] uppercase font-semibold text-zinc-500 block">Próxima Fecha Sugerida</span>
+              <span className="text-[10px] uppercase font-semibold text-zinc-500 block truncate">Próx. Aceite Motor</span>
+              <strong className="text-sm font-bold font-mono text-zinc-900 block mt-0.5">
+                {nextServiceMileage.toLocaleString()} km
+              </strong>
+            </div>
+
+            <div className="bg-white/80 rounded-xl p-2.5 border border-black/5 shadow-2xs">
+              <span className="text-[10px] uppercase font-semibold text-zinc-500 block truncate">Fecha Sugerida</span>
               <strong className="text-sm font-bold text-zinc-900 block mt-0.5">
                 {nextServiceEstimatedDate.toLocaleDateString("es-PY")}
               </strong>
             </div>
 
             <div className="bg-white/80 rounded-xl p-2.5 border border-black/5 shadow-2xs">
-              <span className="text-[10px] uppercase font-semibold text-zinc-500 block">Próximo Kilometraje</span>
+              <span className="text-[10px] uppercase font-semibold text-purple-700 block truncate">Caja & Diferencial</span>
               <strong className="text-sm font-bold font-mono text-zinc-900 block mt-0.5">
-                {nextServiceMileage.toLocaleString()} km
+                ~{nextGearboxMileage.toLocaleString()} km
+              </strong>
+            </div>
+
+            <div className="bg-white/80 rounded-xl p-2.5 border border-black/5 shadow-2xs">
+              <span className="text-[10px] uppercase font-semibold text-indigo-700 block truncate">Revisión Completa</span>
+              <strong className="text-sm font-bold font-mono text-zinc-900 block mt-0.5">
+                ~{nextFullReviewMileage.toLocaleString()} km
               </strong>
             </div>
           </div>
@@ -317,7 +357,7 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {/* Aceite y Filtro */}
+            {/* Aceite y Filtro de Motor */}
             <div className="bg-white rounded-xl border border-zinc-200 p-3.5 space-y-1.5">
               <div className="flex items-center gap-2 text-zinc-900 font-bold text-xs">
                 <Droplet className="h-4 w-4 text-amber-500" />
@@ -326,12 +366,19 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
               <p className="text-[11px] text-zinc-500 leading-relaxed">
                 Cambio de aceite multigrado / sintético y sustitución de filtro de aceite y combustible.
               </p>
-              <span className="text-[10px] font-mono font-semibold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded inline-block">
-                Cada 5.000 km o 6 meses
-              </span>
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <span className="text-[10px] font-mono font-semibold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded inline-block">
+                  Cada 5.000 km o 6 meses
+                </span>
+                {currentMileage > 0 && (
+                  <span className="text-[10px] font-mono font-semibold bg-amber-50 text-amber-700 border border-amber-200/60 px-2 py-0.5 rounded inline-block">
+                    Próximo: ~{nextServiceMileage.toLocaleString()} km
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Frenos */}
+            {/* Inspección de Frenos */}
             <div className="bg-white rounded-xl border border-zinc-200 p-3.5 space-y-1.5">
               <div className="flex items-center gap-2 text-zinc-900 font-bold text-xs">
                 <Disc className="h-4 w-4 text-red-500" />
@@ -340,9 +387,58 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
               <p className="text-[11px] text-zinc-500 leading-relaxed">
                 Control de espesor de pastillas, estado de discos, zapatas y líquido de frenos.
               </p>
-              <span className="text-[10px] font-mono font-semibold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded inline-block">
-                Cada 10.000 km o 1 año
-              </span>
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <span className="text-[10px] font-mono font-semibold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded inline-block">
+                  Cada 10.000 km o 1 año
+                </span>
+                {currentMileage > 0 && (
+                  <span className="text-[10px] font-mono font-semibold bg-red-50 text-red-700 border border-red-200/60 px-2 py-0.5 rounded inline-block">
+                    Próximo: ~{nextBrakesMileage.toLocaleString()} km
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Aceite de Caja y Diferencial */}
+            <div className="bg-white rounded-xl border border-zinc-200 p-3.5 space-y-1.5">
+              <div className="flex items-center gap-2 text-zinc-900 font-bold text-xs">
+                <Cog className="h-4 w-4 text-purple-600" />
+                <span>Aceite de Caja & Diferencial</span>
+              </div>
+              <p className="text-[11px] text-zinc-500 leading-relaxed">
+                Sustitución de lubricante para transmisión (manual o automática) y fluido de diferencial para proteger engranajes.
+              </p>
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <span className="text-[10px] font-mono font-semibold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded inline-block">
+                  Cada 40.000 km o 2 años
+                </span>
+                {currentMileage > 0 && (
+                  <span className="text-[10px] font-mono font-semibold bg-purple-50 text-purple-700 border border-purple-200/60 px-2 py-0.5 rounded inline-block">
+                    Próximo: ~{nextGearboxMileage.toLocaleString()} km
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Próxima Revisión Completa */}
+            <div className="bg-white rounded-xl border border-zinc-200 p-3.5 space-y-1.5">
+              <div className="flex items-center gap-2 text-zinc-900 font-bold text-xs">
+                <ClipboardCheck className="h-4 w-4 text-indigo-600" />
+                <span>Próxima Revisión Completa</span>
+              </div>
+              <p className="text-[11px] text-zinc-500 leading-relaxed">
+                Diagnóstico integral de 25+ puntos: escaneo computarizado OBD-II, sistema de carga, batería, correas y fluidos.
+              </p>
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <span className="text-[10px] font-mono font-semibold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded inline-block">
+                  Cada 20.000 km o 1 año
+                </span>
+                {currentMileage > 0 && (
+                  <span className="text-[10px] font-mono font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/60 px-2 py-0.5 rounded inline-block">
+                    Próximo: ~{nextFullReviewMileage.toLocaleString()} km
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Alineación y Balanceo */}
@@ -354,9 +450,16 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
               <p className="text-[11px] text-zinc-500 leading-relaxed">
                 Rotación de neumáticos y calibración para evitar desgaste prematuro de cubiertas.
               </p>
-              <span className="text-[10px] font-mono font-semibold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded inline-block">
-                Cada 10.000 km
-              </span>
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <span className="text-[10px] font-mono font-semibold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded inline-block">
+                  Cada 10.000 km
+                </span>
+                {currentMileage > 0 && (
+                  <span className="text-[10px] font-mono font-semibold bg-blue-50 text-blue-700 border border-blue-200/60 px-2 py-0.5 rounded inline-block">
+                    Próximo: ~{nextAlignmentMileage.toLocaleString()} km
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Tren Delantero y Suspensión */}
@@ -368,9 +471,16 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
               <p className="text-[11px] text-zinc-500 leading-relaxed">
                 Revisión de bujes, amortiguadores, rótulas y terminales de dirección.
               </p>
-              <span className="text-[10px] font-mono font-semibold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded inline-block">
-                En cada service
-              </span>
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <span className="text-[10px] font-mono font-semibold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded inline-block">
+                  En cada service
+                </span>
+                {currentMileage > 0 && (
+                  <span className="text-[10px] font-mono font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-2 py-0.5 rounded inline-block">
+                    Inspección continua
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -397,6 +507,7 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
               {(repairs as unknown as RepairHistoryItem[]).map((r: RepairHistoryItem, idx: number) => {
                 const isLatest = idx === 0
                 const items: BudgetItem[] = (r.budget_items as BudgetItem[]) || []
+                const repairMileage = r.mileage || (isLatest && vehicle.mileage ? vehicle.mileage : null)
 
                 return (
                   <div
@@ -429,10 +540,21 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
                             {r.status}
                           </Badge>
                         </div>
-                        <p className="text-[11px] text-zinc-400 mt-1 flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          Fecha de Ingreso: {r.entry_date ? new Date(r.entry_date).toLocaleDateString("es-PY") : "S/F"}
-                        </p>
+                        <div className="flex items-center gap-2 flex-wrap mt-1 text-[11px] text-zinc-500">
+                          <span className="flex items-center gap-1 text-zinc-400">
+                            <Calendar className="h-3 w-3" />
+                            <span>Fecha de Ingreso: {r.entry_date ? new Date(r.entry_date).toLocaleDateString("es-PY") : "S/F"}</span>
+                          </span>
+                          {repairMileage !== null && repairMileage !== undefined && Number(repairMileage) > 0 && (
+                            <>
+                              <span className="text-zinc-300">•</span>
+                              <span className="inline-flex items-center gap-1 font-mono font-bold text-zinc-700 bg-zinc-100 border border-zinc-200/60 px-1.5 py-0.5 rounded text-[10px]">
+                                <Gauge className="h-3 w-3 text-zinc-600" />
+                                <span>{Number(repairMileage).toLocaleString()} km</span>
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </div>
 
                       {r.budget_total ? (

@@ -157,7 +157,7 @@ export function RepairStatusSelect({
               </button>
 
               {isOpen && (
-                <div className="absolute left-0 mt-1.5 w-60 rounded-xl bg-white p-1.5 shadow-xl ring-1 ring-black/10 z-50 text-xs">
+                <div className="absolute left-0 mt-1.5 w-60 max-w-[calc(100vw-2.5rem)] rounded-xl bg-white p-1.5 shadow-xl ring-1 ring-black/10 z-50 text-xs">
                   <div className="px-2 py-1 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
                     Cambiar estado rápido
                   </div>
@@ -262,7 +262,7 @@ export function RepairStatusSelect({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-1.5 w-56 rounded-xl bg-white p-1.5 shadow-xl ring-1 ring-black/10 z-50 text-xs animate-in fade-in-0 zoom-in-95">
+        <div className="absolute left-0 mt-1.5 w-56 max-w-[calc(100vw-2.5rem)] rounded-xl bg-white p-1.5 shadow-xl ring-1 ring-black/10 z-50 text-xs animate-in fade-in-0 zoom-in-95">
           <div className="px-2 py-1 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider border-b border-zinc-100 mb-1">
             Cambiar estado
           </div>

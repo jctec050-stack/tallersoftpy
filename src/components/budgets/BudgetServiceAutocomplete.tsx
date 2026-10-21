@@ -247,10 +247,12 @@ export function BudgetServiceAutocomplete({
 
       {/* Mensaje de feedback de autocompletado */}
       {feedbackMsg && (
-        <div className="mt-1 flex items-center gap-1.5 text-[11px] text-emerald-700 font-medium bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md animate-in fade-in slide-in-from-top-1">
-          <Check className="h-3 w-3 shrink-0" />
-          <span className="truncate">{feedbackMsg}</span>
-          <span className="text-[10px] text-emerald-600 font-normal ml-auto shrink-0">
+        <div className="mt-1 flex items-center justify-between gap-1.5 text-[11px] text-emerald-700 font-medium bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md animate-in fade-in slide-in-from-top-1 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+            <Check className="h-3 w-3 shrink-0" />
+            <span className="truncate">{feedbackMsg}</span>
+          </div>
+          <span className="text-[10px] text-emerald-600 font-normal shrink-0 hidden sm:inline">
             Puedes editar precio o cantidad
           </span>
         </div>
@@ -258,13 +260,13 @@ export function BudgetServiceAutocomplete({
 
       {/* Menú desplegable de sugerencias predictivas */}
       {isOpen && (
-        <div className="absolute left-0 right-0 z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-1 shadow-lg shadow-zinc-900/10 animate-in fade-in zoom-in-95">
-          <div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-zinc-500 border-b border-zinc-100">
-            <span className="flex items-center gap-1">
-              <Sparkles className="h-3 w-3 text-amber-500" />
-              {query ? `Predicciones para "${value}"` : "Servicios frecuentes & presupuestados"}
+        <div className="absolute left-0 right-0 z-50 mt-1 max-h-72 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-1 shadow-lg shadow-zinc-900/10 animate-in fade-in zoom-in-95 w-full max-w-full">
+          <div className="flex items-center justify-between px-2 py-1 text-[11px] font-semibold text-zinc-500 border-b border-zinc-100 gap-2">
+            <span className="flex items-center gap-1 min-w-0 truncate">
+              <Sparkles className="h-3 w-3 text-amber-500 shrink-0" />
+              <span className="truncate">{query ? `Predicciones para "${value}"` : "Servicios frecuentes & presupuestados"}</span>
             </span>
-            <span className="text-[10px] font-normal text-zinc-400">
+            <span className="text-[10px] font-normal text-zinc-400 shrink-0 hidden sm:inline">
               Usa ↑ ↓ y Enter
             </span>
           </div>

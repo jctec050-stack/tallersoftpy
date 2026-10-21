@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { getVehicleRepairHistory } from "@/actions/repairs"
-import { History, Car, Calendar, Wrench, FileText, CheckCircle2, Clock, Loader2 } from "lucide-react"
+import { History, Car, Calendar, Wrench, FileText, CheckCircle2, Clock, Loader2, Gauge } from "lucide-react"
 
 interface RepairHistoryItem {
   id: string
@@ -16,6 +16,7 @@ interface RepairHistoryItem {
   status: string
   budget_total?: number
   created_at?: string
+  mileage?: number | null
 }
 
 interface VehicleHistoryProps {
@@ -101,9 +102,20 @@ export function VehicleHistoryModal({ vehicleId, plate, brand, model }: VehicleH
                   <div className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs space-y-2 hover:border-zinc-300 transition-colors">
                     <div className="flex justify-between items-start gap-2">
                       <div>
-                        <div className="flex items-center gap-2 text-xs font-semibold text-zinc-500">
-                          <Calendar className="h-3.5 w-3.5 text-zinc-400" />
-                          <span>Ingreso: {new Date(item.entry_date).toLocaleDateString("es-PY")}</span>
+                        <div className="flex items-center gap-2 text-xs font-semibold text-zinc-500 flex-wrap">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3.5 w-3.5 text-zinc-400" />
+                            <span>Ingreso: {new Date(item.entry_date).toLocaleDateString("es-PY")}</span>
+                          </span>
+                          {item.mileage !== undefined && item.mileage !== null && Number(item.mileage) > 0 && (
+                            <>
+                              <span className="text-zinc-300">•</span>
+                              <span className="inline-flex items-center gap-1 font-mono font-bold text-zinc-700 bg-zinc-100 border border-zinc-200/60 px-1.5 py-0.5 rounded text-[11px]">
+                                <Gauge className="h-3 w-3 text-zinc-500" />
+                                <span>{Number(item.mileage).toLocaleString()} km</span>
+                              </span>
+                            </>
+                          )}
                         </div>
                         <p className="font-semibold text-zinc-900 text-sm mt-1">{item.reason}</p>
                       </div>

@@ -82,7 +82,7 @@ export default async function PresupuestosPage({
           <DialogTrigger render={<Button className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 shadow-sm" />}>
             <Plus className="mr-2 h-4 w-4" /> Crear Presupuesto
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto overflow-x-hidden">
             <DialogHeader>
               <DialogTitle>Crear Orden & Presupuesto Digital</DialogTitle>
             </DialogHeader>

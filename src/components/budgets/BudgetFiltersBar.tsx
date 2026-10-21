@@ -178,38 +178,39 @@ export function BudgetFiltersBar({ clients }: BudgetFiltersBarProps) {
           </select>
         </div>
 
-        {/* 3. Filtro Fecha Desde */}
-        <div className="sm:col-span-2 space-y-1">
-          <label className="block text-[11px] font-medium text-zinc-500 flex items-center gap-1">
-            <Calendar className="h-3 w-3 text-zinc-400" />
-            Desde
-          </label>
-          <Input
-            type="date"
-            value={fromDate}
-            onChange={(e) => {
-              setFromDate(e.target.value)
-              updateFilters({ from: e.target.value })
-            }}
-            className="h-9 text-xs bg-zinc-50/50 border-zinc-200 focus-visible:bg-white"
-          />
-        </div>
+        {/* 3. Filtros Fecha Desde y Hasta agrupados */}
+        <div className="grid grid-cols-2 gap-2 sm:col-span-4">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-medium text-zinc-500 flex items-center gap-1">
+              <Calendar className="h-3 w-3 text-zinc-400" />
+              Desde
+            </label>
+            <Input
+              type="date"
+              value={fromDate}
+              onChange={(e) => {
+                setFromDate(e.target.value)
+                updateFilters({ from: e.target.value })
+              }}
+              className="h-9 text-xs bg-zinc-50/50 border-zinc-200 focus-visible:bg-white"
+            />
+          </div>
 
-        {/* 4. Filtro Fecha Hasta */}
-        <div className="sm:col-span-2 space-y-1">
-          <label className="block text-[11px] font-medium text-zinc-500 flex items-center gap-1">
-            <Calendar className="h-3 w-3 text-zinc-400" />
-            Hasta
-          </label>
-          <Input
-            type="date"
-            value={toDate}
-            onChange={(e) => {
-              setToDate(e.target.value)
-              updateFilters({ to: e.target.value })
-            }}
-            className="h-9 text-xs bg-zinc-50/50 border-zinc-200 focus-visible:bg-white"
-          />
+          <div className="space-y-1">
+            <label className="block text-[11px] font-medium text-zinc-500 flex items-center gap-1">
+              <Calendar className="h-3 w-3 text-zinc-400" />
+              Hasta
+            </label>
+            <Input
+              type="date"
+              value={toDate}
+              onChange={(e) => {
+                setToDate(e.target.value)
+                updateFilters({ to: e.target.value })
+              }}
+              className="h-9 text-xs bg-zinc-50/50 border-zinc-200 focus-visible:bg-white"
+            />
+          </div>
         </div>
 
         {/* Indicador de carga sutil si hay transición pendiente */}

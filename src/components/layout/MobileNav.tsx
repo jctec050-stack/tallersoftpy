@@ -106,7 +106,7 @@ export function MobileNav() {
           />
 
           {/* Panel Lateral Deslizante */}
-          <div className="relative ml-auto flex h-full w-[82vw] max-w-xs flex-col bg-zinc-950 text-zinc-50 shadow-2xl animate-in slide-in-from-right duration-200">
+          <div className="relative ml-auto flex h-full w-[84vw] max-w-xs flex-col bg-zinc-950 text-zinc-50 shadow-2xl animate-in slide-in-from-right duration-200 overscroll-contain">
             {/* Header del Drawer */}
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-zinc-800 px-5">
               <div className="flex items-center gap-2.5">
@@ -184,7 +184,7 @@ export function MobileNav() {
       )}
 
       {/* 3. Barra Inferior Fija para Móviles (Bottom Navigation Bar) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex h-16 w-full items-center justify-around border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-md px-2 text-zinc-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex h-16 pb-[env(safe-area-inset-bottom,0px)] w-full items-center justify-around border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-md px-2 text-zinc-50 shadow-lg">
         {bottomTabs.map((tab) => {
           const isActive = tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href)
           return (

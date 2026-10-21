@@ -95,7 +95,7 @@ export function BudgetPagination({
         </Button>
 
         {/* Números de página */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 flex-wrap justify-center">
           {getPageNumbers().map((p, idx) => {
             if (p === "...") {
               return (

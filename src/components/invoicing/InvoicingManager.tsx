@@ -1019,78 +1019,151 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
                   <p className="font-semibold text-zinc-700">No hay órdenes facturadas registradas.</p>
                 </div>
               ) : (
-                <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left">
-                      <thead className="bg-zinc-50 text-zinc-700 font-semibold border-b border-zinc-200">
-                        <tr>
-                          <th className="py-3 px-4">N° Orden</th>
-                          <th className="py-3 px-4">Cliente / RUC</th>
-                          <th className="py-3 px-4">Vehículo</th>
-                          <th className="py-3 px-4">Trabajo Realizado</th>
-                          <th className="py-3 px-4">Total Facturado</th>
-                          <th className="py-3 px-4 text-center">Estado</th>
-                          <th className="py-3 px-4 text-right">Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-zinc-200">
-                        {filteredInvoicedRepairs.map((r: RepairInvoiceItem) => {
-                          const client = r.vehicle?.client
-                          const vehicle = r.vehicle
+                <div className="space-y-3">
+                  {/* Vista Móvil (Cards) */}
+                  <div className="md:hidden space-y-3">
+                    {filteredInvoicedRepairs.map((r: RepairInvoiceItem) => {
+                      const client = r.vehicle?.client
+                      const vehicle = r.vehicle
 
-                          return (
-                            <tr key={r.id} className="hover:bg-zinc-50/70 transition-colors">
-                              <td className="py-3 px-4 font-mono font-bold text-zinc-900">
-                                #PRES-{r.id.slice(0, 8)}
-                              </td>
-                              <td className="py-3 px-4">
-                                <span className="font-semibold text-zinc-900 block">{client?.name || "Sin cliente"}</span>
-                                <span className="text-[11px] text-zinc-500">RUC: {client?.document || "S/D"}</span>
-                              </td>
-                              <td className="py-3 px-4">
-                                {vehicle ? (
-                                  <div>
-                                    <span className="font-medium text-zinc-800 block">
-                                      {vehicle.brand} {vehicle.model}
-                                    </span>
-                                    <span className="font-mono text-[10px] text-zinc-500 bg-zinc-100 px-1.5 py-0.2 rounded">
-                                      {vehicle.plate}
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <span className="text-zinc-400">Sin vehículo</span>
-                                )}
-                              </td>
-                              <td className="py-3 px-4 text-zinc-600 max-w-xs truncate">{r.reason}</td>
-                              <td className="py-3 px-4 font-mono font-bold text-zinc-900">
-                                {formatCurrency(r.budget_total || 0)}
-                              </td>
-                              <td className="py-3 px-4 text-center">
-                                <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+                      return (
+                        <div
+                          key={r.id}
+                          className="bg-white border border-zinc-200 rounded-xl p-4 shadow-xs space-y-2.5"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <Badge
+                                  variant="outline"
+                                  className="font-mono text-xs uppercase bg-zinc-100 font-bold"
+                                >
+                                  #PRES-{r.id.slice(0, 8)}
+                                </Badge>
+                                <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-[10px]">
                                   🧾 Facturado
                                 </Badge>
-                              </td>
-                              <td className="py-3 px-4 text-right">
-                                <div className="flex items-center justify-end gap-1.5">
-                                  <DigitalBudgetModal repair={r} />
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleRevertIndividualRepair(r.id)}
-                                    disabled={isSubmitting}
-                                    className="text-zinc-500 hover:text-red-600 text-xs h-8"
-                                    title="Revertir a Entregado"
-                                  >
-                                    <Undo2 className="h-3 w-3 mr-1" /> Revertir
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                              </div>
+                              {vehicle && (
+                                <p className="font-bold text-zinc-900 text-sm mt-1">
+                                  {vehicle.brand} {vehicle.model}{" "}
+                                  <span className="font-mono text-zinc-500 font-normal text-xs">
+                                    ({vehicle.plate})
+                                  </span>
+                                </p>
+                              )}
+                            </div>
+
+                            <span className="font-mono text-sm font-bold text-zinc-900 shrink-0">
+                              {formatCurrency(r.budget_total || 0)}
+                            </span>
+                          </div>
+
+                          <div className="text-xs space-y-1 bg-zinc-50 p-2.5 rounded-lg border border-zinc-100">
+                            {client && (
+                              <p className="text-zinc-700">
+                                <strong>Cliente:</strong> {client.name}{" "}
+                                {client.document ? `(RUC: ${client.document})` : ""}
+                              </p>
+                            )}
+                            <p className="text-zinc-600 break-words">
+                              <strong>Trabajo:</strong> {r.reason}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center justify-end gap-2 pt-1 border-t border-zinc-100">
+                            <DigitalBudgetModal repair={r} />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRevertIndividualRepair(r.id)}
+                              disabled={isSubmitting}
+                              className="text-zinc-500 hover:text-red-600 text-xs h-8"
+                              title="Revertir a Entregado"
+                            >
+                              <Undo2 className="h-3 w-3 mr-1" /> Revertir
+                            </Button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Vista Desktop (Tabla) */}
+                  <div className="hidden md:block bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-xs">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs text-left">
+                        <thead className="bg-zinc-50 text-zinc-700 font-semibold border-b border-zinc-200">
+                          <tr>
+                            <th className="py-3 px-4">N° Orden</th>
+                            <th className="py-3 px-4">Cliente / RUC</th>
+                            <th className="py-3 px-4">Vehículo</th>
+                            <th className="py-3 px-4">Trabajo Realizado</th>
+                            <th className="py-3 px-4">Total Facturado</th>
+                            <th className="py-3 px-4 text-center">Estado</th>
+                            <th className="py-3 px-4 text-right">Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-200">
+                          {filteredInvoicedRepairs.map((r: RepairInvoiceItem) => {
+                            const client = r.vehicle?.client
+                            const vehicle = r.vehicle
+
+                            return (
+                              <tr key={r.id} className="hover:bg-zinc-50/70 transition-colors">
+                                <td className="py-3 px-4 font-mono font-bold text-zinc-900">
+                                  #PRES-{r.id.slice(0, 8)}
+                                </td>
+                                <td className="py-3 px-4">
+                                  <span className="font-semibold text-zinc-900 block">{client?.name || "Sin cliente"}</span>
+                                  <span className="text-[11px] text-zinc-500">RUC: {client?.document || "S/D"}</span>
+                                </td>
+                                <td className="py-3 px-4">
+                                  {vehicle ? (
+                                    <div>
+                                      <span className="font-medium text-zinc-800 block">
+                                        {vehicle.brand} {vehicle.model}
+                                      </span>
+                                      <span className="font-mono text-[10px] text-zinc-500 bg-zinc-100 px-1.5 py-0.2 rounded">
+                                        {vehicle.plate}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-zinc-400">Sin vehículo</span>
+                                  )}
+                                </td>
+                                <td className="py-3 px-4 text-zinc-600 max-w-xs truncate">{r.reason}</td>
+                                <td className="py-3 px-4 font-mono font-bold text-zinc-900">
+                                  {formatCurrency(r.budget_total || 0)}
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+                                    🧾 Facturado
+                                  </Badge>
+                                </td>
+                                <td className="py-3 px-4 text-right">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <DigitalBudgetModal repair={r} />
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleRevertIndividualRepair(r.id)}
+                                      disabled={isSubmitting}
+                                      className="text-zinc-500 hover:text-red-600 text-xs h-8"
+                                      title="Revertir a Entregado"
+                                    >
+                                      <Undo2 className="h-3 w-3 mr-1" /> Revertir
+                                    </Button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}

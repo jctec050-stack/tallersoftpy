@@ -267,8 +267,8 @@ export function DigitalInvoiceModal({ invoice, trigger }: DigitalInvoiceModalPro
               <Car className="h-4 w-4 text-zinc-600" /> Presupuestos y Trabajos Facturados ({repairs.length})
             </h4>
 
-            <div className="border border-zinc-300 rounded-lg overflow-hidden">
-              <table className="w-full text-left text-xs">
+            <div className="border border-zinc-300 rounded-lg overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[540px]">
                 <thead className="bg-zinc-100 text-zinc-700 font-semibold border-b border-zinc-300">
                   <tr>
                     <th className="p-2 text-center w-12">Cant.</th>
