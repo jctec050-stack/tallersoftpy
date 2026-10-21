@@ -1,17 +1,20 @@
 import { getRepairs } from "@/actions/repairs"
 import { getClients } from "@/actions/clients"
+import { getInvoices } from "@/actions/invoices"
 import { InvoicingManager, type RepairInvoiceItem, type ClientInfo } from "@/components/invoicing/InvoicingManager"
 import { Card, CardContent } from "@/components/ui/card"
 import { Receipt, Clock, CheckCircle2, Building2, AlertTriangle } from "lucide-react"
 
 export default async function FacturacionPage() {
-  const [repairsRes, clientsRes] = await Promise.all([
+  const [repairsRes, clientsRes, invoicesRes] = await Promise.all([
     getRepairs(),
     getClients(),
+    getInvoices(),
   ])
 
   const repairs: RepairInvoiceItem[] = (repairsRes.repairs as unknown as RepairInvoiceItem[]) || []
   const clients: ClientInfo[] = (clientsRes.clients as unknown as ClientInfo[]) || []
+  const initialInvoices = invoicesRes.invoices || []
   const fetchError = repairsRes.error || clientsRes.error
 
   // Cálculos de KPIs
@@ -159,7 +162,7 @@ export default async function FacturacionPage() {
       </div>
 
       {/* Invoicing Manager Principal */}
-      <InvoicingManager repairs={repairs} clients={clients} />
+      <InvoicingManager repairs={repairs} clients={clients} initialInvoices={initialInvoices} />
     </div>
   )
 }

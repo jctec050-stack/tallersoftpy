@@ -1,29 +1,69 @@
 import { getBudgets } from "@/actions/budgets"
+import { getClients } from "@/actions/clients"
 import { BudgetStatusToggle } from "@/components/budgets/BudgetStatusToggle"
 import { DigitalBudgetModal } from "@/components/repairs/DigitalBudgetModal"
 import { EditRepairModal, DeleteRepairButton } from "@/components/repairs/RepairActions"
 import { RepairForm } from "@/components/forms/RepairForm"
+import { BudgetFiltersBar } from "@/components/budgets/BudgetFiltersBar"
+import { BudgetPagination } from "@/components/budgets/BudgetPagination"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { SearchInput } from "@/components/ui/search-input"
 import Link from "next/link"
 import { FileText, Plus, Calendar, AlertTriangle, DollarSign, Clock, CheckCircle2, PackageCheck, Eye, Car, Receipt } from "lucide-react"
 
-export default async function PresupuestosPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function PresupuestosPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ 
+    q?: string
+    client?: string
+    from?: string
+    to?: string
+    status?: string
+    page?: string
+  }> 
+}) {
   const params = await searchParams
   const q = params.q || ""
-  const { budgets, error: fetchError } = await getBudgets(q)
+  const clientId = params.client || ""
+  const startDate = params.from || ""
+  const endDate = params.to || ""
+  const status = params.status || ""
+  const page = parseInt(params.page || "1", 10) || 1
 
-  const totalBudgetsCount = budgets?.length || 0
-  const pendingCount = budgets?.filter((b: any) => !b.budget_status || b.budget_status === "Pendiente" || b.budget_status === "Borrador" || b.budget_status === "Enviado").length || 0
-  const acceptedCount = budgets?.filter((b: any) => b.budget_status === "Aceptado" || b.budget_status === "Aprobado").length || 0
-  const deliveredCount = budgets?.filter((b: any) => b.budget_status === "Entregado").length || 0
-  const invoicedCount = budgets?.filter((b: any) => b.budget_status === "Facturado").length || 0
+  // Cargar clientes para el selector de filtro
+  const { clients } = await getClients()
 
-  const totalAmountSum = budgets?.reduce((sum: number, b: any) => sum + (b.budget_total || 0), 0) || 0
+  // Cargar métricas globales de la vista
+  const { budgets: allBudgets } = await getBudgets()
+
+  // Cargar presupuestos con filtros aplicados (búsqueda, cliente, fecha desde-hasta)
+  const { budgets: filteredBudgets, error: fetchError } = await getBudgets({
+    q,
+    clientId,
+    startDate,
+    endDate,
+    status
+  })
+
+  const budgets = filteredBudgets || []
+
+  // Métricas globales
+  const totalAmountSum = allBudgets?.reduce((sum: number, b: any) => sum + (b.budget_total || 0), 0) || 0
+  const pendingCount = allBudgets?.filter((b: any) => !b.budget_status || b.budget_status === "Pendiente" || b.budget_status === "Borrador" || b.budget_status === "Enviado").length || 0
+  const acceptedCount = allBudgets?.filter((b: any) => b.budget_status === "Aceptado" || b.budget_status === "Aprobado").length || 0
+  const deliveredCount = allBudgets?.filter((b: any) => b.budget_status === "Entregado").length || 0
+  const invoicedCount = allBudgets?.filter((b: any) => b.budget_status === "Facturado").length || 0
+
+  // Configuración de Paginación
+  const PAGE_SIZE = 10
+  const totalItems = budgets.length
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1
+  const currentPage = Math.min(Math.max(1, page), totalPages)
+  const paginatedBudgets = budgets.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("es-PY", { style: "currency", currency: "PYG", maximumFractionDigits: 0 }).format(amount)
@@ -154,19 +194,18 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
         </Link>
       </div>
 
-      {/* Search Input */}
-      <div className="w-full sm:max-w-md">
-        <SearchInput placeholder="Buscar por cliente, chapa o motivo..." />
-      </div>
+      {/* Filtros Avanzados: Búsqueda, Cliente, Fecha Desde-Hasta */}
+      <BudgetFiltersBar clients={clients || []} />
 
       {/* Mobile Cards View */}
       <div className="md:hidden space-y-3">
-        {(!budgets || budgets.length === 0) ? (
-          <div className="text-center py-10 px-4 rounded-xl border border-zinc-200 bg-white text-zinc-500 text-sm">
-            No hay presupuestos registrados.
+        {(!paginatedBudgets || paginatedBudgets.length === 0) ? (
+          <div className="text-center py-10 px-4 rounded-xl border border-zinc-200 bg-white text-zinc-500 text-sm space-y-2">
+            <p className="font-semibold text-zinc-700">No se encontraron presupuestos.</p>
+            <p className="text-xs text-zinc-400">Prueba ajustando los filtros de búsqueda, cliente o fechas.</p>
           </div>
         ) : (
-          budgets.map((b: any) => {
+          paginatedBudgets.map((b: any) => {
             const vehicle = b.vehicle
             const client = vehicle?.client
 
@@ -244,18 +283,18 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
             </TableRow>
           </TableHeader>
           <TableBody>
-            {(!budgets || budgets.length === 0) ? (
+            {(!paginatedBudgets || paginatedBudgets.length === 0) ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-12 text-zinc-500">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <FileText className="h-8 w-8 text-zinc-300" />
-                    <p className="font-medium text-zinc-700">No hay presupuestos registrados</p>
-                    <p className="text-xs text-zinc-500">Haz clic en "Crear Presupuesto" para registrar la primera cotización.</p>
+                    <p className="font-semibold text-zinc-700">No se encontraron presupuestos</p>
+                    <p className="text-xs text-zinc-400">Prueba cambiando el texto de búsqueda, seleccionando otro cliente o ajustando el rango de fechas.</p>
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
-              budgets.map((b: any) => {
+              paginatedBudgets.map((b: any) => {
                 const vehicle = b.vehicle
                 const client = vehicle?.client
                 const itemsCount = b.budget_items?.length || 0
@@ -324,6 +363,14 @@ export default async function PresupuestosPage({ searchParams }: { searchParams:
           </TableBody>
         </Table>
       </div>
+
+      {/* Paginación */}
+      <BudgetPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        pageSize={PAGE_SIZE}
+      />
     </div>
   )
 }

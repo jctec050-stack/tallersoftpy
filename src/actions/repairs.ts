@@ -2,6 +2,7 @@
 
 import { supabase } from "@/lib/supabase"
 import { revalidatePath } from "next/cache"
+import { syncInventoryStockForBudgetItems } from "@/actions/inventory"
 
 export interface BudgetItem {
   id: string
@@ -9,6 +10,8 @@ export interface BudgetItem {
   quantity: number
   price: number
   total: number
+  inventory_id?: string | null
+  item_type?: "service" | "part"
 }
 
 export interface RepairData {
@@ -24,6 +27,15 @@ export interface RepairData {
   budget_items?: BudgetItem[]
   budget_total?: number
   budget_status?: "Borrador" | "Enviado" | "Aprobado" | "Rechazado"
+  vehicle?: {
+    id?: string
+    plate?: string
+    brand?: string
+    model?: string
+    year?: number
+    mileage?: number
+    client?: any
+  }
 }
 
 export async function getRepairs(search?: string) {
@@ -91,22 +103,51 @@ export async function getVehicleRepairHistory(vehicleId: string) {
 }
 
 export async function createRepair(data: RepairData) {
-  const { error } = await supabase.from("repairs").insert(data)
+  const { vehicle, ...dbPayload } = data
+  const { error } = await supabase.from("repairs").insert(dbPayload)
   if (error) throw new Error(error.message)
+
+  // Descontar repuestos del inventario utilizados en el presupuesto
+  if (data.budget_items && data.budget_items.length > 0) {
+    await syncInventoryStockForBudgetItems(data.budget_items, [])
+  }
+
   revalidatePath("/reparaciones")
   revalidatePath("/mecanicos")
+  revalidatePath("/inventario")
   if (data.vehicle_id) {
     revalidatePath(`/vehiculos`)
   }
 }
 
 export async function updateRepair(id: string, data: Partial<RepairData>) {
-  const { error } = await supabase.from("repairs").update(data).eq("id", id)
+  // Obtener ítems anteriores para calcular la diferencia de stock de repuestos
+  let previousItems: BudgetItem[] = []
+  if (data.budget_items) {
+    const { data: existing } = await supabase
+      .from("repairs")
+      .select("budget_items")
+      .eq("id", id)
+      .maybeSingle()
+    if (existing && Array.isArray(existing.budget_items)) {
+      previousItems = existing.budget_items
+    }
+  }
+
+  const { vehicle, ...dbPayload } = data
+  const { error } = await supabase.from("repairs").update(dbPayload).eq("id", id)
   if (error) throw new Error(error.message)
+
+  // Sincronizar stock con la diferencia neta de cantidades
+  if (data.budget_items) {
+    await syncInventoryStockForBudgetItems(data.budget_items, previousItems)
+  }
+
   revalidatePath("/reparaciones")
   revalidatePath(`/reparaciones/${id}`)
   revalidatePath("/mecanicos")
   revalidatePath("/cobranzas")
+  revalidatePath("/inventario")
   revalidatePath("/")
 }
 
@@ -121,8 +162,20 @@ export async function updateRepairStatus(id: string, status: RepairData["status"
 }
 
 export async function deleteRepair(id: string) {
+  // Restaurar repuestos utilizados al inventario si la orden es eliminada
+  const { data: existing } = await supabase
+    .from("repairs")
+    .select("budget_items")
+    .eq("id", id)
+    .maybeSingle()
+
+  if (existing && Array.isArray(existing.budget_items)) {
+    await syncInventoryStockForBudgetItems([], existing.budget_items)
+  }
+
   const { error } = await supabase.from("repairs").delete().eq("id", id)
   if (error) throw new Error(error.message)
   revalidatePath("/reparaciones")
   revalidatePath("/mecanicos")
+  revalidatePath("/inventario")
 }

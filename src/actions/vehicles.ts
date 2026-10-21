@@ -70,6 +70,8 @@ export async function updateVehicle(id: string, data: Record<string, unknown>, c
   if (error) throw new Error(error.message)
   revalidatePath("/vehiculos")
   revalidatePath("/clientes")
+  revalidatePath("/reparaciones")
+  revalidatePath("/presupuestos")
   if (clientId) {
     revalidatePath(`/clientes/${clientId}`)
   }
