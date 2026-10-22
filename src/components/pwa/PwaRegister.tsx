@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Download, X, Share, Smartphone, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +11,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function PwaRegister() {
+  const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -29,6 +31,11 @@ export function PwaRegister() {
             console.warn("PWA: Error registrando Service Worker:", error);
           });
       });
+    }
+
+    // Do not show install prompt on public customer QR view
+    if (pathname.startsWith("/v/")) {
+      return;
     }
 
     // 2. Check if already installed / standalone
@@ -101,7 +108,7 @@ export function PwaRegister() {
     sessionStorage.setItem("pwa_install_dismissed", "true");
   };
 
-  if (isInstalled || !showPrompt) return null;
+  if (isInstalled || !showPrompt || pathname.startsWith("/v/")) return null;
 
   return (
     <div className="fixed bottom-20 md:bottom-6 left-3 right-3 sm:left-auto sm:right-6 sm:w-96 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
