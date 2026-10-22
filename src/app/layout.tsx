@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { MobileNav } from "@/components/layout/MobileNav";
+import { AppShell } from "@/components/layout/AppShell";
 import { PwaRegister } from "@/components/pwa/PwaRegister";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -50,11 +49,7 @@ export default function RootLayout({
   return (
     <html lang="es" className="h-full min-h-[100dvh] bg-zinc-50">
       <body className={`${inter.className} flex flex-col md:flex-row h-full min-h-[100dvh] overflow-hidden antialiased text-zinc-900`}>
-        <Sidebar />
-        <MobileNav />
-        <main className="flex-1 overflow-y-auto bg-white pb-28 md:pb-8">
-          {children}
-        </main>
+        <AppShell>{children}</AppShell>
         <PwaRegister />
       </body>
     </html>

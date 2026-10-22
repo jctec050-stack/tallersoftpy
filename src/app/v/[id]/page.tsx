@@ -66,7 +66,7 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
           </div>
           <div className="pt-2">
             <a
-              href="https://wa.me/595983535121"
+              href="https://wa.me/595975882828"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-xs hover:bg-emerald-700 transition-colors"
@@ -182,7 +182,7 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
           </div>
 
           <a
-            href={generateWhatsAppLink("0983535121", `Hola Taller San Luis, me contacto desde la ficha digital del móvil ${vehicle.plate}.`)}
+            href={generateWhatsAppLink("0975882828", `Hola Taller San Luis, me contacto desde la ficha digital del móvil ${vehicle.plate}.`)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors"
@@ -336,7 +336,7 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
           {/* Botón Agendar Turno Directo */}
           <div className="pt-2">
             <a
-              href={generateWhatsAppLink("0983535121", whatsappMessage)}
+              href={generateWhatsAppLink("0975882828", whatsappMessage)}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all"
@@ -556,15 +556,6 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
                           )}
                         </div>
                       </div>
-
-                      {r.budget_total ? (
-                        <div className="text-right">
-                          <span className="text-[10px] text-zinc-400 uppercase font-semibold block">Total</span>
-                          <span className="font-mono text-xs sm:text-sm font-bold text-zinc-900">
-                            {formatCurrency(r.budget_total)}
-                          </span>
-                        </div>
-                      ) : null}
                     </div>
 
                     {/* Trabajo Realizado */}
@@ -588,17 +579,22 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
                     {items.length > 0 && (
                       <div className="space-y-1.5 pt-1">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
-                          Detalle de Repuestos y Trabajos ({items.length})
+                          Servicios y Trabajos Realizados ({items.length})
                         </span>
                         <div className="divide-y divide-zinc-100 rounded-lg border border-zinc-100 overflow-hidden text-xs">
                           {items.map((item: BudgetItem, i: number) => (
-                            <div key={i} className="flex justify-between items-center p-2 bg-white hover:bg-zinc-50/50">
-                              <span className="text-zinc-700 font-medium">
-                                • {item.description} {item.quantity > 1 ? `(${item.quantity}x)` : ""}
-                              </span>
-                              <span className="font-mono text-[11px] text-zinc-900 font-bold shrink-0">
-                                {formatCurrency(item.total)}
-                              </span>
+                            <div key={i} className="flex items-center justify-between p-2.5 bg-white hover:bg-zinc-50/50">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                                <span className="text-zinc-800 font-medium break-words">
+                                  {item.description}
+                                </span>
+                              </div>
+                              {item.quantity > 1 && (
+                                <span className="text-[10px] text-zinc-500 font-mono bg-zinc-100 border border-zinc-200/60 px-1.5 py-0.5 rounded shrink-0 ml-2">
+                                  Cant: {item.quantity}
+                                </span>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -637,15 +633,15 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
               Hernandarias, Paraguay
             </span>
             <span className="hidden sm:inline text-zinc-300">·</span>
-            <a href="tel:0983535121" className="flex items-center gap-1.5 hover:text-blue-600 font-medium">
+            <a href="tel:0975882828" className="flex items-center gap-1.5 hover:text-blue-600 font-medium">
               <Phone className="h-3.5 w-3.5 text-zinc-500" />
-              0983 535 121
+              0975 882 828
             </a>
           </div>
 
           <div className="pt-2">
             <a
-              href="https://wa.me/595983535121"
+              href="https://wa.me/595975882828"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors shadow-xs"

@@ -8,9 +8,9 @@ export const WORKSHOP_CONFIG = {
   commercialName: "Taller Mecánico San Luis",
   activity: "SERVICIO AUTOMOTRIZ MULTIMARCA & MANTENIMIENTO INTEGRAL",
   address: "Hernandarias - Paraguay",
-  phone: "0983 535 121",
-  phoneFormatted: "0983 535 121",
-  whatsappNumber: "595983535121",
+  phone: "0975 882 828",
+  phoneFormatted: "0975 882 828",
+  whatsappNumber: "595975882828",
   email: "tallersanluis.py@gmail.com",
   ruc: "4587123-1", // RUC de Taller San Luis (configurable)
   timbrado: "16892450", // Timbrado fiscal oficial

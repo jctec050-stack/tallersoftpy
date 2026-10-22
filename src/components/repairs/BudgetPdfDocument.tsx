@@ -240,7 +240,7 @@ export function BudgetPdfDocument({ repair }: BudgetPdfDocumentProps) {
           <View>
             <Text style={styles.companyName}>TALLER SAN LUIS</Text>
             <Text style={styles.companySubtitle}>Servicio Automotriz Multimarca & Mantenimiento</Text>
-            <Text style={styles.companySubtitle}>Hernandarias - Paraguay | Tel: 0983 535 121</Text>
+            <Text style={styles.companySubtitle}>Hernandarias - Paraguay | Tel: 0975 882 828</Text>
           </View>
           <View>
             <Text style={styles.orderTitle}>ORDEN DE TRABAJO</Text>

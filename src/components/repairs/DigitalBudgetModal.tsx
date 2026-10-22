@@ -174,7 +174,7 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
                   Servicio Automotriz Multimarca & Mantenimiento
                 </p>
                 <p className="text-[11px] sm:text-xs text-zinc-500 font-medium">
-                  Hernandarias - Paraguay · Tel: 0983 535 121
+                  Hernandarias - Paraguay · Tel: 0975 882 828
                 </p>
               </div>
             </div>

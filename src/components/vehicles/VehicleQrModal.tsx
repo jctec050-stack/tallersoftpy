@@ -217,7 +217,7 @@ export function VehicleQrModal({
       // Subtítulo
       ctx.fillStyle = "#71717a"
       ctx.font = "500 17px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-      ctx.fillText("Hernandarias · Tel: 0983 535 121", 125, 112)
+      ctx.fillText("Hernandarias · Tel: 0975 882 828", 125, 112)
 
       // Badge HISTORIAL DIGITAL
       const badgeText = "HISTORIAL DIGITAL"
@@ -569,7 +569,7 @@ export function VehicleQrModal({
               <img src="/logotaller.webp" class="logo" alt="Logo" />
               <div>
                 <div class="shop-title">TALLER SAN LUIS</div>
-                <div class="shop-subtitle">Hernandarias · Tel: 0983 535 121</div>
+                <div class="shop-subtitle">Hernandarias · Tel: 0975 882 828</div>
               </div>
             </div>
             <div class="badge-historial">HISTORIAL DIGITAL</div>
@@ -684,7 +684,7 @@ export function VehicleQrModal({
                     TALLER SAN LUIS
                   </h4>
                   <p className="text-[10px] text-zinc-500 font-medium leading-tight">
-                    Hernandarias · Tel: 0983 535 121
+                    Hernandarias · Tel: 0975 882 828
                   </p>
                 </div>
               </div>

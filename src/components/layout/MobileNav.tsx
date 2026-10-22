@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   Wrench,
   Users,
@@ -17,16 +17,25 @@ import {
   Menu,
   X,
   ChevronRight,
+  LogOut,
+  Shield,
 } from "lucide-react"
+import { logout } from "@/actions/auth"
+import { Button } from "@/components/ui/button"
 
 export function MobileNav() {
   const pathname = usePathname()
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
 
   // Cerrar drawer al cambiar de ruta
   useEffect(() => {
     setIsOpen(false)
   }, [pathname])
+
+  if (pathname.startsWith("/v/") || pathname.startsWith("/login")) {
+    return null;
+  }
 
   // Evitar scroll cuando el drawer está abierto
   useEffect(() => {
@@ -165,19 +174,46 @@ export function MobileNav() {
             </nav>
 
             {/* Footer del Drawer */}
-            <div className="border-t border-zinc-800 p-4">
+            <div className="border-t border-zinc-800 p-4 space-y-3">
               <Link
                 href="/configuracion"
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-colors ${
                   pathname.startsWith("/configuracion")
                     ? "bg-zinc-800 text-white font-semibold"
                     : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
                 }`}
               >
-                <Settings className="h-5 w-5 text-zinc-500 shrink-0" />
+                <Settings className="h-4 w-4 text-zinc-500 shrink-0" />
                 Configuración
               </Link>
+
+              {/* Perfil Administrador y Cerrar Sesión Móvil */}
+              <div className="rounded-xl bg-zinc-900 border border-zinc-800/80 p-3 space-y-2.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-lg bg-emerald-950/80 border border-emerald-800/60 flex items-center justify-center shrink-0">
+                    <Shield className="h-4 w-4 text-emerald-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-zinc-100 truncate">Perfil Administrador</p>
+                    <p className="text-[10px] text-emerald-400">Acceso total activado</p>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={async () => {
+                    setIsOpen(false);
+                    await logout();
+                    router.push("/login");
+                    router.refresh();
+                  }}
+                  className="w-full justify-center bg-zinc-950 hover:bg-red-950/40 text-zinc-300 hover:text-red-400 border-zinc-800 hover:border-red-800/60 h-9 text-xs font-medium"
+                >
+                  <LogOut className="h-3.5 w-3.5 mr-2" />
+                  Cerrar Sesión
+                </Button>
+              </div>
             </div>
           </div>
         </div>
