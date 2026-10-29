@@ -39,11 +39,11 @@ export default async function FacturacionPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
+    <div className="p-3.5 sm:p-6 lg:p-8 space-y-5 sm:space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
               Módulo de Facturación
             </h1>
@@ -72,20 +72,20 @@ export default async function FacturacionPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {/* Card 1: Por Facturar (Entregados) */}
         <Card className="border-zinc-200 shadow-xs bg-white">
-          <CardContent className="p-3.5 sm:p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] sm:text-xs font-semibold text-amber-700 uppercase tracking-wider line-clamp-1">
+          <CardContent className="p-3 sm:p-5">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[11px] sm:text-xs font-semibold text-amber-700 uppercase tracking-wider truncate">
                 Por Facturar
               </span>
-              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
-                <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
+              <div className="h-7 w-7 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
+                <Clock className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
               </div>
             </div>
-            <div className="mt-2 sm:mt-3">
-              <h3 className="text-sm xs:text-base sm:text-2xl font-bold font-mono text-zinc-900 leading-tight">
+            <div className="mt-2 sm:mt-3 min-w-0">
+              <h3 className="text-xs xs:text-sm sm:text-2xl font-bold font-mono text-zinc-900 leading-tight truncate" title={formatCurrency(deliveredAmount)}>
                 {formatCurrency(deliveredAmount)}
               </h3>
-              <p className="text-[11px] sm:text-xs text-amber-700 font-medium mt-1 leading-snug">
+              <p className="text-[10px] sm:text-xs text-amber-700 font-medium mt-1 leading-snug truncate">
                 {deliveredRepairs.length} {deliveredRepairs.length === 1 ? "trabajo entregado" : "trabajos entregados"}
               </p>
             </div>
@@ -94,20 +94,20 @@ export default async function FacturacionPage() {
 
         {/* Card 2: Total Facturado */}
         <Card className="border-zinc-200 shadow-xs bg-white">
-          <CardContent className="p-3.5 sm:p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] sm:text-xs font-semibold text-purple-700 uppercase tracking-wider line-clamp-1">
+          <CardContent className="p-3 sm:p-5">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[11px] sm:text-xs font-semibold text-purple-700 uppercase tracking-wider truncate">
                 Total Facturado
               </span>
-              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
-                <Receipt className="h-4 w-4 sm:h-5 sm:w-5" />
+              <div className="h-7 w-7 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 shrink-0">
+                <Receipt className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
               </div>
             </div>
-            <div className="mt-2 sm:mt-3">
-              <h3 className="text-sm xs:text-base sm:text-2xl font-bold font-mono text-purple-900 leading-tight">
+            <div className="mt-2 sm:mt-3 min-w-0">
+              <h3 className="text-xs xs:text-sm sm:text-2xl font-bold font-mono text-purple-900 leading-tight truncate" title={formatCurrency(invoicedAmount)}>
                 {formatCurrency(invoicedAmount)}
               </h3>
-              <p className="text-[11px] sm:text-xs text-purple-600 font-medium mt-1 leading-snug">
+              <p className="text-[10px] sm:text-xs text-purple-600 font-medium mt-1 leading-snug truncate">
                 {invoicedRepairs.length} {invoicedRepairs.length === 1 ? "orden facturada" : "órdenes facturadas"}
               </p>
             </div>
@@ -116,20 +116,20 @@ export default async function FacturacionPage() {
 
         {/* Card 3: Clientes esperando factura */}
         <Card className="border-zinc-200 shadow-xs bg-white">
-          <CardContent className="p-3.5 sm:p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] sm:text-xs font-semibold text-zinc-500 uppercase tracking-wider line-clamp-1">
+          <CardContent className="p-3 sm:p-5">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[11px] sm:text-xs font-semibold text-zinc-500 uppercase tracking-wider truncate">
                 Clientes
               </span>
-              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-700 shrink-0">
-                <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
+              <div className="h-7 w-7 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-700 shrink-0">
+                <Building2 className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
               </div>
             </div>
-            <div className="mt-2 sm:mt-3">
-              <h3 className="text-sm xs:text-base sm:text-2xl font-bold font-mono text-zinc-900 leading-tight">
+            <div className="mt-2 sm:mt-3 min-w-0">
+              <h3 className="text-xs xs:text-sm sm:text-2xl font-bold font-mono text-zinc-900 leading-tight truncate">
                 {clientsWithPending.length}
               </h3>
-              <p className="text-[11px] sm:text-xs text-zinc-400 mt-1 leading-snug">
+              <p className="text-[10px] sm:text-xs text-zinc-400 mt-1 leading-snug truncate">
                 Con trabajos a liquidar
               </p>
             </div>
@@ -138,22 +138,22 @@ export default async function FacturacionPage() {
 
         {/* Card 4: Efectividad de Facturación */}
         <Card className="border-zinc-200 shadow-xs bg-white">
-          <CardContent className="p-3.5 sm:p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] sm:text-xs font-semibold text-emerald-700 uppercase tracking-wider line-clamp-1">
+          <CardContent className="p-3 sm:p-5">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[11px] sm:text-xs font-semibold text-emerald-700 uppercase tracking-wider truncate">
                 Tasa Facturación
               </span>
-              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
-                <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
+              <div className="h-7 w-7 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+                <CheckCircle2 className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
               </div>
             </div>
-            <div className="mt-2 sm:mt-3">
-              <h3 className="text-sm xs:text-base sm:text-2xl font-bold font-mono text-emerald-700 leading-tight">
+            <div className="mt-2 sm:mt-3 min-w-0">
+              <h3 className="text-xs xs:text-sm sm:text-2xl font-bold font-mono text-emerald-700 leading-tight truncate">
                 {deliveredAmount + invoicedAmount > 0
                   ? `${Math.round((invoicedAmount / (deliveredAmount + invoicedAmount)) * 100)}%`
                   : "100%"}
               </h3>
-              <p className="text-[11px] sm:text-xs text-emerald-600 font-medium mt-1 leading-snug">
+              <p className="text-[10px] sm:text-xs text-emerald-600 font-medium mt-1 leading-snug truncate">
                 Entregados vs Facturados
               </p>
             </div>

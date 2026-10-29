@@ -5,13 +5,22 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { SearchInput } from "@/components/ui/search-input"
+import { Pagination } from "@/components/ui/pagination"
 import Link from "next/link"
 import { Eye, AlertTriangle } from "lucide-react"
 
-export default async function VehiculosPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function VehiculosPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
   const params = await searchParams;
   const q = params.q || "";
+  const page = parseInt(params.page || "1", 10) || 1;
   const { vehicles, error: fetchError } = await getVehicles(q);
+
+  const allVehicles = vehicles || [];
+  const PAGE_SIZE = 10;
+  const totalItems = allVehicles.length;
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
+  const currentPage = Math.min(Math.max(1, page), totalPages);
+  const paginatedVehicles = allVehicles.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -39,12 +48,12 @@ export default async function VehiculosPage({ searchParams }: { searchParams: Pr
 
       {/* Mobile Cards View */}
       <div className="md:hidden space-y-3">
-        {(!vehicles || vehicles.length === 0) ? (
+        {(!paginatedVehicles || paginatedVehicles.length === 0) ? (
           <div className="text-center py-10 px-4 rounded-xl border border-zinc-200 bg-white text-zinc-500 text-sm">
             {fetchError ? "Sin conexión a la base de datos" : "No se encontraron vehículos."}
           </div>
         ) : (
-          vehicles.map((vehicle: any) => (
+          paginatedVehicles.map((vehicle: any) => (
             <div key={vehicle.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-xs space-y-2.5">
               <div className="flex items-start justify-between gap-2">
                 <div>
@@ -55,8 +64,8 @@ export default async function VehiculosPage({ searchParams }: { searchParams: Pr
                     {vehicle.brand} {vehicle.model} <span className="text-zinc-500 font-normal text-xs">({vehicle.year})</span>
                   </p>
                 </div>
-                <span className="font-mono text-xs text-zinc-600 bg-zinc-50 px-2 py-0.5 rounded border border-zinc-200 shrink-0">
-                  {vehicle.mileage ? `${vehicle.mileage.toLocaleString()} km` : "0 km"}
+                <span suppressHydrationWarning className="font-mono text-xs text-zinc-600 bg-zinc-50 px-2 py-0.5 rounded border border-zinc-200 shrink-0">
+                  {vehicle.mileage ? `${vehicle.mileage.toLocaleString("es-PY")} km` : "0 km"}
                 </span>
               </div>
 
@@ -101,14 +110,14 @@ export default async function VehiculosPage({ searchParams }: { searchParams: Pr
             </TableRow>
           </TableHeader>
           <TableBody>
-            {(!vehicles || vehicles.length === 0) ? (
+            {(!paginatedVehicles || paginatedVehicles.length === 0) ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-12 text-zinc-500">
                   {fetchError ? "Sin conexión a la base de datos" : "No se encontraron vehículos."}
                 </TableCell>
               </TableRow>
             ) : (
-              vehicles.map((vehicle: any) => (
+              paginatedVehicles.map((vehicle: any) => (
                 <TableRow key={vehicle.id} className="hover:bg-zinc-50/80 transition-colors">
                   <TableCell>
                     <Badge variant="outline" className="font-mono text-xs uppercase bg-zinc-100 font-bold tracking-wider px-2.5 py-1">
@@ -127,8 +136,8 @@ export default async function VehiculosPage({ searchParams }: { searchParams: Pr
                       <span className="text-zinc-400 font-normal text-xs">Sin cliente</span>
                     )}
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-zinc-700">
-                    {vehicle.mileage ? vehicle.mileage.toLocaleString() : 0} km
+                  <TableCell suppressHydrationWarning className="font-mono text-xs text-zinc-700">
+                    {vehicle.mileage ? vehicle.mileage.toLocaleString("es-PY") : 0} km
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end space-x-1.5">
@@ -150,6 +159,15 @@ export default async function VehiculosPage({ searchParams }: { searchParams: Pr
           </TableBody>
         </Table>
       </div>
+
+      {/* Paginación */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        pageSize={PAGE_SIZE}
+        itemLabel="vehículos"
+      />
     </div>
   )
 }

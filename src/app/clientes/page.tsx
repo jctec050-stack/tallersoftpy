@@ -9,17 +9,27 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { SearchInput } from "@/components/ui/search-input"
+import { Pagination } from "@/components/ui/pagination"
 import Link from "next/link"
 import { MessageCircle, Plus, Eye, Users, Car, UserCheck, AlertTriangle } from "lucide-react"
 
-export default async function ClientesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function ClientesPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
   const params = await searchParams;
   const q = params.q || "";
+  const page = parseInt(params.page || "1", 10) || 1;
   const { clients, error: fetchError } = await getClients(q);
 
-  const totalClients = clients?.length || 0;
-  const clientsWithVehicles = clients?.filter((c: any) => c.vehicles && c.vehicles.length > 0).length || 0;
-  const totalVehiclesCount = clients?.reduce((sum: number, c: any) => sum + (c.vehicles?.length || 0), 0) || 0;
+  const allClients = clients || [];
+  const totalClients = allClients.length;
+  const clientsWithVehicles = allClients.filter((c: any) => c.vehicles && c.vehicles.length > 0).length;
+  const totalVehiclesCount = allClients.reduce((sum: number, c: any) => sum + (c.vehicles?.length || 0), 0);
+
+  // Configuración de Paginación
+  const PAGE_SIZE = 10;
+  const totalItems = allClients.length;
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
+  const currentPage = Math.min(Math.max(1, page), totalPages);
+  const paginatedClients = allClients.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
@@ -115,13 +125,13 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
 
       {/* Mobile Cards View */}
       <div className="md:hidden space-y-3">
-        {(!clients || clients.length === 0) ? (
+        {(!paginatedClients || paginatedClients.length === 0) ? (
           <div className="text-center py-10 px-4 rounded-xl border border-zinc-200 bg-white text-zinc-500">
             <Users className="h-8 w-8 mx-auto text-zinc-300 mb-2" />
             <p className="font-semibold text-zinc-800 text-sm">No se encontraron clientes</p>
           </div>
         ) : (
-          clients.map((client: any) => {
+          paginatedClients.map((client: any) => {
             const vehicleCount = client.vehicles?.length || 0;
             return (
               <div key={client.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-xs space-y-3">
@@ -192,7 +202,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
             </TableRow>
           </TableHeader>
           <TableBody>
-            {(!clients || clients.length === 0) ? (
+            {(!paginatedClients || paginatedClients.length === 0) ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-12 text-zinc-500">
                   <div className="flex flex-col items-center justify-center space-y-2">
@@ -209,7 +219,7 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
                 </TableCell>
               </TableRow>
             ) : (
-              clients.map((client: any) => {
+              paginatedClients.map((client: any) => {
                 const vehicleCount = client.vehicles?.length || 0;
 
                 return (
@@ -286,6 +296,15 @@ export default async function ClientesPage({ searchParams }: { searchParams: Pro
           </TableBody>
         </Table>
       </div>
+
+      {/* Paginación */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        pageSize={PAGE_SIZE}
+        itemLabel="clientes"
+      />
     </div>
   )
 }

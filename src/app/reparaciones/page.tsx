@@ -10,19 +10,29 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { SearchInput } from "@/components/ui/search-input"
+import { Pagination } from "@/components/ui/pagination"
 import { generateWhatsAppLink } from "@/lib/whatsapp"
 import Link from "next/link"
 import { Wrench, Plus, Eye, Calendar, AlertTriangle, Image as ImageIcon, Car, Clock, CheckCircle2, ShieldAlert, Phone, ExternalLink } from "lucide-react"
 
-export default async function ReparacionesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function ReparacionesPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
   const params = await searchParams
   const q = params.q || ""
+  const page = parseInt(params.page || "1", 10) || 1
   const { repairs, error: fetchError } = await getRepairs(q)
 
-  const activeRepairs = repairs?.filter((r: any) => r.status !== "Completado" && r.status !== "Entregado").length || 0
-  const highPriorityCount = repairs?.filter((r: any) => r.priority === "Alta").length || 0
-  const budgetedCount = repairs?.filter((r: any) => r.status === "Presupuestado" || r.budget_status === "Aprobado").length || 0
-  const completedCount = repairs?.filter((r: any) => r.status === "Completado" || r.status === "Entregado").length || 0
+  const allRepairs = repairs || []
+  const activeRepairs = allRepairs.filter((r: any) => r.status !== "Completado" && r.status !== "Entregado").length
+  const highPriorityCount = allRepairs.filter((r: any) => r.priority === "Alta").length
+  const budgetedCount = allRepairs.filter((r: any) => r.status === "Presupuestado" || r.budget_status === "Aprobado").length
+  const completedCount = allRepairs.filter((r: any) => r.status === "Completado" || r.status === "Entregado").length
+
+  // Configuración de Paginación
+  const PAGE_SIZE = 10
+  const totalItems = allRepairs.length
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1
+  const currentPage = Math.min(Math.max(1, page), totalPages)
+  const paginatedRepairs = allRepairs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
@@ -182,14 +192,14 @@ CREATE POLICY "Permitir todo acceso a repairs" ON repairs FOR ALL USING (true) W
 
       {/* Mobile Cards View (Visible only on mobile devices) */}
       <div className="md:hidden space-y-3">
-        {(!repairs || repairs.length === 0) ? (
+        {(!paginatedRepairs || paginatedRepairs.length === 0) ? (
           <div className="text-center py-12 px-4 rounded-xl border border-zinc-200 bg-white text-zinc-500">
             <Wrench className="h-8 w-8 mx-auto text-zinc-300 mb-2" />
             <p className="font-semibold text-zinc-800 text-sm">No hay órdenes de reparación</p>
             <p className="text-xs text-zinc-500 mt-1">Toca en "Nueva Orden de Reparación" para registrar un trabajo.</p>
           </div>
         ) : (
-          repairs.map((repair: any) => {
+          paginatedRepairs.map((repair: any) => {
             const vehicle = repair.vehicle
             const client = vehicle?.client
             const photoCount = repair.photos?.length || 0
@@ -292,7 +302,7 @@ CREATE POLICY "Permitir todo acceso a repairs" ON repairs FOR ALL USING (true) W
             </TableRow>
           </TableHeader>
           <TableBody>
-            {(!repairs || repairs.length === 0) ? (
+            {(!paginatedRepairs || paginatedRepairs.length === 0) ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-12 text-zinc-500">
                   <div className="flex flex-col items-center justify-center space-y-2">
@@ -307,7 +317,7 @@ CREATE POLICY "Permitir todo acceso a repairs" ON repairs FOR ALL USING (true) W
                 </TableCell>
               </TableRow>
             ) : (
-              repairs.map((repair: any) => {
+              paginatedRepairs.map((repair: any) => {
                 const vehicle = repair.vehicle
                 const client = vehicle?.client
                 const photoCount = repair.photos?.length || 0
@@ -385,6 +395,15 @@ CREATE POLICY "Permitir todo acceso a repairs" ON repairs FOR ALL USING (true) W
           </TableBody>
         </Table>
       </div>
+
+      {/* Paginación */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        pageSize={PAGE_SIZE}
+        itemLabel="reparaciones"
+      />
     </div>
   )
 }

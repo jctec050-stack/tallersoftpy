@@ -24,8 +24,10 @@ export function SearchInput({ placeholder }: { placeholder: string }) {
           } else {
             params.delete("q")
           }
+          params.delete("page")
           startTransition(() => {
-            router.replace(`?${params.toString()}`)
+            const qs = params.toString()
+            router.replace(qs ? `?${qs}` : window.location.pathname)
           })
         }}
       />

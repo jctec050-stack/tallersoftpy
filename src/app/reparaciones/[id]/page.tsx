@@ -90,7 +90,7 @@ export default async function RepairDetailPage({ params }: { params: Promise<{ i
                   </Badge>
                   <span className="font-bold text-zinc-900">{vehicle.brand} {vehicle.model}</span>
                 </div>
-                <p className="text-xs text-zinc-500 mt-1">Año: {vehicle.year} | Km: {vehicle.mileage ? vehicle.mileage.toLocaleString() : 0} km</p>
+                <p suppressHydrationWarning className="text-xs text-zinc-500 mt-1">Año: {vehicle.year} | Km: {vehicle.mileage ? vehicle.mileage.toLocaleString("es-PY") : 0} km</p>
                 {vehicle.id && (
                   <div className="mt-3">
                     <VehicleHistoryModal vehicleId={vehicle.id} plate={vehicle.plate} brand={vehicle.brand} model={vehicle.model} />

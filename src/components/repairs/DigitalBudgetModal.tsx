@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { generateWhatsAppLink } from "@/lib/whatsapp"
-import { getAppBaseUrl } from "@/lib/utils"
+import { getAppBaseUrl, cn } from "@/lib/utils"
 import { FileText, Printer, Share2, FileDown, Loader2 } from "lucide-react"
 
 export interface BudgetItem {
@@ -43,7 +43,15 @@ export interface RepairDetail {
   }
 }
 
-export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
+export function DigitalBudgetModal({
+  repair,
+  trigger,
+  className,
+}: {
+  repair: RepairDetail
+  trigger?: React.ReactNode
+  className?: string
+}) {
   const [open, setOpen] = useState(false)
 
   const items = repair.budget_items || []
@@ -136,9 +144,24 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="outline" size="sm" className="w-full sm:w-auto bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 font-semibold text-xs h-9 justify-center" />}>
-        <FileText className="mr-1.5 h-4 w-4 text-emerald-600 shrink-0" /> Presupuesto Digital
-      </DialogTrigger>
+      {trigger ? (
+        <DialogTrigger render={trigger as any} />
+      ) : (
+        <DialogTrigger
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              className={cn(
+                "w-full sm:w-auto bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 font-semibold text-xs h-8 sm:h-9 justify-center",
+                className
+              )}
+            />
+          }
+        >
+          <FileText className="mr-1.5 h-4 w-4 text-emerald-600 shrink-0" /> Presupuesto Digital
+        </DialogTrigger>
+      )}
       <DialogContent className="w-[95vw] sm:max-w-[720px] max-h-[92vh] overflow-y-auto p-3 sm:p-6">
         <DialogHeader className="space-y-1">
           <div className="flex items-center justify-between gap-2 pr-6">
@@ -208,7 +231,7 @@ export function DigitalBudgetModal({ repair }: { repair: RepairDetail }) {
                 <>
                   <p className="font-bold text-zinc-900 text-sm sm:text-base">{vehicle.brand} {vehicle.model} ({vehicle.year})</p>
                   <p className="text-zinc-600 text-xs font-mono">Chapa: <span className="font-bold text-zinc-800 bg-zinc-200/60 px-1.5 py-0.5 rounded text-[11px]">{vehicle.plate}</span></p>
-                  <p className="text-zinc-600 text-xs">Kilometraje: <span className="font-medium text-zinc-800">{vehicle.mileage ? vehicle.mileage.toLocaleString() : 0} km</span></p>
+                  <p className="text-zinc-600 text-xs">Kilometraje: <span suppressHydrationWarning className="font-medium text-zinc-800">{vehicle.mileage ? vehicle.mileage.toLocaleString("es-PY") : 0} km</span></p>
                 </>
               ) : (
                 <p className="text-zinc-500 italic text-xs">Sin vehículo asignado</p>

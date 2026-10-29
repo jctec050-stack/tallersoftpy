@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { Download, X, Share, Smartphone, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,28 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 }
 
+function getStoredDismissed(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return (
+      localStorage.getItem("pwa_install_dismissed") === "true" ||
+      sessionStorage.getItem("pwa_install_dismissed") === "true"
+    );
+  } catch {
+    return false;
+  }
+}
+
+function setStoredDismissed(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem("pwa_install_dismissed", "true");
+  } catch {}
+  try {
+    sessionStorage.setItem("pwa_install_dismissed", "true");
+  } catch {}
+}
+
 export function PwaRegister() {
   const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -17,6 +39,7 @@ export function PwaRegister() {
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSTip, setShowIOSTip] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const initialPathRef = useRef<string | null>(null);
 
   useEffect(() => {
     // 1. Register Service Worker
@@ -33,8 +56,8 @@ export function PwaRegister() {
       });
     }
 
-    // Do not show install prompt on public customer QR view
-    if (pathname.startsWith("/v/")) {
+    // Do not show install prompt on public customer QR view or login
+    if (pathname.startsWith("/v/") || pathname.startsWith("/login")) {
       return;
     }
 
@@ -48,9 +71,12 @@ export function PwaRegister() {
       return;
     }
 
-    // Check if dismissed in this session
-    const isDismissed = sessionStorage.getItem("pwa_install_dismissed");
-    if (isDismissed) return;
+    // Check if dismissed previously in localStorage (persists across sessions and page changes)
+    if (getStoredDismissed()) {
+      return;
+    }
+
+    initialPathRef.current = pathname;
 
     // 3. Detect iOS Safari
     const userAgent = window.navigator.userAgent.toLowerCase();
@@ -60,7 +86,9 @@ export function PwaRegister() {
     if (isIosDevice && !isStandalone) {
       // Delay showing iOS hint slightly
       const timer = setTimeout(() => {
-        setShowPrompt(true);
+        if (!getStoredDismissed()) {
+          setShowPrompt(true);
+        }
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -69,7 +97,9 @@ export function PwaRegister() {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowPrompt(true);
+      if (!getStoredDismissed()) {
+        setShowPrompt(true);
+      }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -78,12 +108,22 @@ export function PwaRegister() {
       setIsInstalled(true);
       setShowPrompt(false);
       setDeferredPrompt(null);
+      setStoredDismissed();
     });
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     };
   }, []);
+
+  // Si el usuario cambia de página mientras el aviso está activo, cerrarlo y no volver a mostrarlo en cada navegación
+  useEffect(() => {
+    if (initialPathRef.current && initialPathRef.current !== pathname && showPrompt) {
+      setShowPrompt(false);
+      setShowIOSTip(false);
+      setStoredDismissed();
+    }
+  }, [pathname, showPrompt]);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
@@ -98,6 +138,7 @@ export function PwaRegister() {
     if (outcome === "accepted") {
       setIsInstalled(true);
       setShowPrompt(false);
+      setStoredDismissed();
     }
     setDeferredPrompt(null);
   };
@@ -105,10 +146,10 @@ export function PwaRegister() {
   const handleDismiss = () => {
     setShowPrompt(false);
     setShowIOSTip(false);
-    sessionStorage.setItem("pwa_install_dismissed", "true");
+    setStoredDismissed();
   };
 
-  if (isInstalled || !showPrompt || pathname.startsWith("/v/")) return null;
+  if (isInstalled || !showPrompt || pathname.startsWith("/v/") || pathname.startsWith("/login")) return null;
 
   return (
     <div className="fixed bottom-20 md:bottom-6 left-3 right-3 sm:left-auto sm:right-6 sm:w-96 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">

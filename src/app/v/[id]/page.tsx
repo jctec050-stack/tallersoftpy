@@ -1,4 +1,9 @@
 import Image from "next/image"
+import Link from "next/link"
+import { cookies } from "next/headers"
+import { SESSION_COOKIE_NAME, verifySessionToken } from "@/lib/auth"
+import { getVehicleMaintenance } from "@/lib/vehicle-maintenance"
+import { EditMaintenanceModal } from "@/components/vehicles/EditMaintenanceModal"
 import { getVehicleByPlateOrId } from "@/actions/vehicles"
 import { getVehicleRepairHistory } from "@/actions/repairs"
 import { generateWhatsAppLink } from "@/lib/whatsapp"
@@ -20,6 +25,7 @@ import {
   Droplet,
   Cog,
   ClipboardCheck,
+  Shield,
 } from "lucide-react"
 
 interface BudgetItem {
@@ -50,6 +56,11 @@ interface PublicVehiclePortalProps {
 export default async function PublicVehiclePortal({ params }: PublicVehiclePortalProps) {
   const { id } = await params
   const vehicle = await getVehicleByPlateOrId(id)
+
+  // 1. Detectar si el usuario actual tiene sesión activa de Administrador
+  const cookieStore = await cookies()
+  const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value
+  const isAdmin = await verifySessionToken(sessionToken)
 
   if (!vehicle) {
     return (
@@ -82,6 +93,9 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
   const repairs = await getVehicleRepairHistory(vehicle.id)
   const client = vehicle.client
 
+  // 2. Cargar configuraciones de mantenimiento personalizadas por el administrador
+  const customMaintenance = await getVehicleMaintenance(vehicle.id, vehicle.plate, vehicle)
+
   // Cálculos de Mantenimiento y Cuenta Regresiva
   const currentMileage = vehicle.mileage || 0
   const latestRepair = repairs[0]
@@ -97,30 +111,42 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
   const diffTime = today.getTime() - lastServiceDate.getTime()
   const daysSinceLastService = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)))
 
-  // Intervalo recomendado: 180 días (6 meses) o +5.000 km
+  // Intervalo recomendado por defecto: 180 días (6 meses) o +5.000 km
   const intervalDays = 180
-  const daysRemaining = intervalDays - daysSinceLastService
 
-  // Kilometraje estimado para el próximo service de motor
-  const nextServiceMileage =
+  // 1. Meta Kilometraje Próximo Aceite Motor
+  const defaultNextServiceMileage =
     currentMileage > 0
       ? Math.ceil((currentMileage + 500) / 5000) * 5000
       : 5000
+  const nextServiceMileage =
+    customMaintenance?.nextOilChangeKm !== undefined && customMaintenance?.nextOilChangeKm !== null
+      ? customMaintenance.nextOilChangeKm
+      : defaultNextServiceMileage
+
   const kmRemaining = Math.max(0, nextServiceMileage - currentMileage)
 
-  // Kilometraje estimado para aceite de caja & diferencial (cada 40.000 km)
-  const nextGearboxMileage =
+  // 2. Meta Kilometraje Aceite de Caja & Diferencial (cada 40.000 km por defecto)
+  const defaultNextGearboxMileage =
     currentMileage > 0
       ? Math.ceil((currentMileage + 2000) / 40000) * 40000
       : 40000
+  const nextGearboxMileage =
+    customMaintenance?.nextDifferentialKm !== undefined && customMaintenance?.nextDifferentialKm !== null
+      ? customMaintenance.nextDifferentialKm
+      : defaultNextGearboxMileage
 
-  // Kilometraje estimado para revisión completa integral (cada 20.000 km)
-  const nextFullReviewMileage =
+  // 3. Meta Kilometraje Revisión Completa Integral (cada 20.000 km por defecto)
+  const defaultNextFullReviewMileage =
     currentMileage > 0
       ? Math.ceil((currentMileage + 1000) / 20000) * 20000
       : 20000
+  const nextFullReviewMileage =
+    customMaintenance?.nextFullReviewKm !== undefined && customMaintenance?.nextFullReviewKm !== null
+      ? customMaintenance.nextFullReviewKm
+      : defaultNextFullReviewMileage
 
-  // Kilometraje estimado para frenos y alineación (cada 10.000 km)
+  // 4. Kilometraje estimado para frenos y alineación (cada 10.000 km)
   const nextBrakesMileage =
     currentMileage > 0
       ? Math.ceil((currentMileage + 500) / 10000) * 10000
@@ -131,15 +157,34 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
       ? Math.ceil((currentMileage + 500) / 10000) * 10000
       : 10000
 
-  // Próxima fecha estimada
-  const nextServiceEstimatedDate = new Date(lastServiceDate)
-  nextServiceEstimatedDate.setDate(nextServiceEstimatedDate.getDate() + intervalDays)
+  // 5. Fecha sugerida estimada o personalizada
+  const defaultNextServiceEstimatedDate = new Date(lastServiceDate)
+  defaultNextServiceEstimatedDate.setDate(defaultNextServiceEstimatedDate.getDate() + intervalDays)
+
+  let nextServiceEstimatedDate = defaultNextServiceEstimatedDate
+  if (customMaintenance?.nextOilChangeDate) {
+    const parts = customMaintenance.nextOilChangeDate.split("-")
+    if (parts.length === 3) {
+      nextServiceEstimatedDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]))
+    } else {
+      nextServiceEstimatedDate = new Date(customMaintenance.nextOilChangeDate)
+    }
+  }
+
+  // Días restantes respecto a la fecha meta real
+  const diffToTargetDate = nextServiceEstimatedDate.getTime() - today.getTime()
+  const daysRemaining = Math.round(diffToTargetDate / (1000 * 60 * 60 * 24))
+
+  // Formato YYYY-MM-DD para inicializar el input de fecha del modal
+  const initialNextOilDateString =
+    customMaintenance?.nextOilChangeDate ||
+    `${nextServiceEstimatedDate.getFullYear()}-${String(nextServiceEstimatedDate.getMonth() + 1).padStart(2, "0")}-${String(nextServiceEstimatedDate.getDate()).padStart(2, "0")}`
 
   // Determinar estado de salud
   let healthStatus: "overdue" | "warning" | "good" = "good"
-  if (daysRemaining < 0) {
+  if (daysRemaining < 0 || (currentMileage > 0 && currentMileage >= nextServiceMileage)) {
     healthStatus = "overdue"
-  } else if (daysRemaining <= 20) {
+  } else if (daysRemaining <= 20 || (currentMileage > 0 && nextServiceMileage - currentMileage <= 500)) {
     healthStatus = "warning"
   } else {
     healthStatus = "good"
@@ -153,7 +198,7 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
     }).format(amount)
   }
 
-  const whatsappMessage = `Hola Taller San Luis, deseo agendar el próximo mantenimiento de mi vehículo ${vehicle.brand} ${vehicle.model} (Chapa: ${vehicle.plate}). Mi kilometraje actual es de aprox. ${currentMileage.toLocaleString()} km.`
+  const whatsappMessage = `Hola Taller San Luis, deseo agendar el próximo mantenimiento de mi vehículo ${vehicle.brand} ${vehicle.model} (Chapa: ${vehicle.plate}). Kilometraje actual: ${currentMileage > 0 ? `${currentMileage.toLocaleString()} km` : "a verificar"}. Meta de servicio: ${nextServiceMileage.toLocaleString()} km o fecha ${nextServiceEstimatedDate.toLocaleDateString("es-PY")}.`
 
   return (
     <div className="min-h-screen bg-zinc-100/60 pb-12 antialiased">
@@ -195,6 +240,27 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
 
       {/* Contenedor Principal */}
       <main className="max-w-2xl mx-auto p-4 sm:p-6 space-y-5">
+        {/* Banner exclusivo para Administrador */}
+        {isAdmin && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-zinc-900 text-zinc-100 p-3.5 rounded-2xl shadow-sm border border-zinc-800">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shrink-0 animate-pulse" />
+              <div>
+                <p className="font-bold text-xs text-white">Sesión de Administrador Activa</p>
+                <p className="text-[11px] text-zinc-400">
+                  Puedes configurar las metas de mantenimiento para este móvil. El cliente verá los valores guardados.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/vehiculos"
+              className="inline-flex items-center text-xs font-semibold text-emerald-400 hover:text-emerald-300 underline shrink-0"
+            >
+              ← Ir a Vehículos
+            </Link>
+          </div>
+        )}
+
         {/* 1. Tarjeta Principal de Identidad del Móvil */}
         <div className="bg-white rounded-2xl border border-zinc-200/80 p-5 shadow-xs space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-100 pb-4">
@@ -248,7 +314,7 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
               : "bg-emerald-50/90 border-emerald-200 text-emerald-950"
           }`}
         >
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div
                 className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
@@ -281,17 +347,32 @@ export default async function PublicVehiclePortal({ params }: PublicVehiclePorta
               </div>
             </div>
 
-            <Badge
-              className={`font-semibold text-xs px-2.5 py-1 uppercase ${
-                healthStatus === "overdue"
-                  ? "bg-red-600 text-white border-red-700"
-                  : healthStatus === "warning"
-                  ? "bg-amber-500 text-white border-amber-600"
-                  : "bg-emerald-600 text-white border-emerald-700"
-              }`}
-            >
-              {healthStatus === "overdue" ? "Requiere Atención" : healthStatus === "warning" ? "Agendar" : "Óptimo"}
-            </Badge>
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              {isAdmin && (
+                <EditMaintenanceModal
+                  vehicleId={vehicle.id}
+                  plate={vehicle.plate}
+                  brand={vehicle.brand}
+                  model={vehicle.model}
+                  currentMileage={currentMileage}
+                  initialNextOilKm={nextServiceMileage}
+                  initialNextOilDate={initialNextOilDateString}
+                  initialNextDifferentialKm={nextGearboxMileage}
+                  initialNextFullReviewKm={nextFullReviewMileage}
+                />
+              )}
+              <Badge
+                className={`font-semibold text-xs px-2.5 py-1 uppercase shrink-0 ${
+                  healthStatus === "overdue"
+                    ? "bg-red-600 text-white border-red-700"
+                    : healthStatus === "warning"
+                    ? "bg-amber-500 text-white border-amber-600"
+                    : "bg-emerald-600 text-white border-emerald-700"
+                }`}
+              >
+                {healthStatus === "overdue" ? "Requiere Atención" : healthStatus === "warning" ? "Agendar" : "Óptimo"}
+              </Badge>
+            </div>
           </div>
 
           <p className="text-xs sm:text-sm leading-relaxed opacity-90">

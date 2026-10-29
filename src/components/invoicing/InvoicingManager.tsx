@@ -452,16 +452,16 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
                       key={c.id}
                       type="button"
                       onClick={() => handleSelectClient(c.id)}
-                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border max-w-full ${
                         isCurrent
                           ? "bg-zinc-900 text-white border-zinc-900 shadow-xs"
                           : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50"
                       }`}
                     >
-                      <Building2 className="h-3.5 w-3.5" />
-                      <span>{c.name}</span>
+                      <Building2 className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{c.name}</span>
                       <span
-                        className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                        className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold shrink-0 ${
                           isCurrent ? "bg-zinc-800 text-amber-300" : "bg-amber-100 text-amber-800"
                         }`}
                       >
@@ -512,7 +512,7 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
               {/* Lista de Presupuestos Entregados para el cliente seleccionado */}
               {selectedClient ? (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                     <div>
                       <h3 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
                         Presupuestos Entregados ({clientDeliveredRepairs.length})
@@ -528,7 +528,7 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
                         variant="outline"
                         size="sm"
                         onClick={toggleSelectAll}
-                        className="text-xs h-8"
+                        className="text-xs h-8 shrink-0 self-start sm:self-auto"
                       >
                         {selectedRepairIds.length === clientDeliveredRepairs.length ? (
                           <>
@@ -612,8 +612,8 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
                                     {vehicle.plate}
                                   </span>
                                   {vehicle.mileage && (
-                                    <span className="text-zinc-400 font-mono text-[10px]">
-                                      ({vehicle.mileage.toLocaleString()} km)
+                                    <span suppressHydrationWarning className="text-zinc-400 font-mono text-[10px]">
+                                      ({vehicle.mileage.toLocaleString("es-PY")} km)
                                     </span>
                                   )}
                                 </p>
@@ -641,15 +641,19 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
 
                             {/* Modal de Detalle y Fecha */}
                             <div
-                              className="pt-2 border-t border-zinc-100 flex items-center justify-between pl-7"
+                              className="pt-2.5 border-t border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pl-0 sm:pl-7"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <span className="text-[11px] text-zinc-400">
-                                {repair.entry_date
-                                  ? `Ingreso: ${new Date(repair.entry_date).toLocaleDateString("es-PY")}`
-                                  : ""}
-                              </span>
-                              <DigitalBudgetModal repair={repair} />
+                              <div className="flex items-center justify-between sm:justify-start gap-2 pl-7 sm:pl-0">
+                                <span className="text-[11px] text-zinc-500 font-medium">
+                                  {repair.entry_date
+                                    ? `Ingreso: ${new Date(repair.entry_date).toLocaleDateString("es-PY")}`
+                                    : ""}
+                                </span>
+                              </div>
+                              <div className="w-full sm:w-auto">
+                                <DigitalBudgetModal repair={repair} />
+                              </div>
                             </div>
                           </div>
                         )
@@ -752,11 +756,11 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
                       </strong>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 pt-1">
+                    <div className="flex justify-between items-center gap-2 pt-1">
                       <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-300">
                         Total Factura:
                       </span>
-                      <span className="font-mono text-lg sm:text-xl font-bold text-emerald-400 whitespace-nowrap">
+                      <span className="font-mono text-base sm:text-xl font-bold text-emerald-400 whitespace-nowrap">
                         {formatCurrency(totalAmountToInvoice)}
                       </span>
                     </div>
@@ -787,6 +791,32 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
               </Card>
             </div>
           </div>
+
+          {/* Barra Flotante Móvil para Facturar cuando hay presupuestos seleccionados */}
+          {selectedRepairIds.length > 0 && (
+            <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 bg-zinc-900/95 backdrop-blur-md text-white rounded-2xl p-3 sm:p-4 shadow-2xl border border-zinc-800 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-4">
+              <div className="min-w-0">
+                <p className="text-[10px] text-zinc-400 uppercase font-semibold">
+                  {selectedRepairIds.length} {selectedRepairIds.length === 1 ? "orden seleccionada" : "órdenes seleccionadas"}
+                </p>
+                <p className="font-mono text-sm sm:text-base font-bold text-emerald-400 truncate">
+                  {formatCurrency(totalAmountToInvoice)}
+                </p>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => {
+                  const el = document.getElementById("invoice_num")
+                  el?.scrollIntoView({ behavior: "smooth", block: "center" })
+                  el?.focus()
+                }}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 px-3 shrink-0 font-semibold shadow-sm"
+              >
+                <Receipt className="h-3.5 w-3.5 mr-1" /> Ir a Facturar
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
@@ -816,11 +846,11 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
           </div>
 
           {/* Sub-tabs: Facturas Grupales vs Órdenes Individuales */}
-          <div className="flex items-center gap-2 border-b border-zinc-200 pb-2">
+          <div className="flex items-center gap-2 border-b border-zinc-200 pb-2 overflow-x-auto scrollbar-none">
             <button
               type="button"
               onClick={() => setHistorySubTab("facturas")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
                 historySubTab === "facturas"
                   ? "bg-zinc-900 text-white shadow-xs"
                   : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
@@ -831,7 +861,7 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
             <button
               type="button"
               onClick={() => setHistorySubTab("ordenes")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
                 historySubTab === "ordenes"
                   ? "bg-zinc-900 text-white shadow-xs"
                   : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
@@ -867,7 +897,7 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
                         }`}
                       >
                         {/* Cabecera de la Factura */}
-                        <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-mono text-sm sm:text-base font-bold text-zinc-900">
@@ -895,7 +925,7 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
                               </span>
                             </div>
 
-                            <p className="text-xs text-zinc-700">
+                            <p className="text-xs text-zinc-700 break-words">
                               <strong className="text-zinc-900">Cliente:</strong> {inv.client?.name}{" "}
                               {inv.client?.document ? (
                                 <span className="font-mono text-zinc-500">(RUC: {inv.client.document})</span>
@@ -903,8 +933,8 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
                             </p>
                           </div>
 
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                            <div className="text-left sm:text-right">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-100">
+                            <div className="flex justify-between items-center sm:block text-left sm:text-right">
                               <span className="text-[10px] uppercase font-bold text-zinc-400 block">Total Factura</span>
                               <span className="font-mono text-base sm:text-lg font-black text-zinc-900">
                                 {formatCurrency(inv.total)}
@@ -1071,18 +1101,20 @@ export function InvoicingManager({ repairs, clients, initialInvoices = [] }: Inv
                             </p>
                           </div>
 
-                          <div className="flex items-center justify-end gap-2 pt-1 border-t border-zinc-100">
-                            <DigitalBudgetModal repair={r} />
+                          <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2 pt-2 border-t border-zinc-100">
+                            <div className="w-full sm:w-auto">
+                              <DigitalBudgetModal repair={r} />
+                            </div>
                             <Button
                               type="button"
                               variant="ghost"
                               size="sm"
                               onClick={() => handleRevertIndividualRepair(r.id)}
                               disabled={isSubmitting}
-                              className="text-zinc-500 hover:text-red-600 text-xs h-8"
+                              className="text-zinc-500 hover:text-red-600 text-xs h-8 ml-auto sm:ml-0"
                               title="Revertir a Entregado"
                             >
-                              <Undo2 className="h-3 w-3 mr-1" /> Revertir
+                              <Undo2 className="h-3 w-3 mr-1" /> Revertir a Entregado
                             </Button>
                           </div>
                         </div>

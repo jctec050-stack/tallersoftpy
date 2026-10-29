@@ -138,7 +138,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                   </div>
                   <div>
                     <span className="text-zinc-400 block text-[10px] uppercase font-semibold">Kilometraje</span>
-                    <span className="font-medium text-zinc-700">{vehicle.mileage ? vehicle.mileage.toLocaleString() : 0} km</span>
+                    <span suppressHydrationWarning className="font-medium text-zinc-700">{vehicle.mileage ? vehicle.mileage.toLocaleString("es-PY") : 0} km</span>
                   </div>
                   {vehicle.color && (
                     <div>
@@ -194,8 +194,8 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                       {vehicle.brand} {vehicle.model}
                     </TableCell>
                     <TableCell className="text-zinc-600">{vehicle.year}</TableCell>
-                    <TableCell className="font-mono text-xs text-zinc-700">
-                      {vehicle.mileage ? vehicle.mileage.toLocaleString() : 0} km
+                    <TableCell suppressHydrationWarning className="font-mono text-xs text-zinc-700">
+                      {vehicle.mileage ? vehicle.mileage.toLocaleString("es-PY") : 0} km
                     </TableCell>
                     <TableCell className="text-xs text-zinc-500">
                       {vehicle.color && <span className="mr-2 capitalize">{vehicle.color}</span>}

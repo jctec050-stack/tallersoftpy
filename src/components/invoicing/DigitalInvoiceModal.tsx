@@ -352,18 +352,18 @@ export function DigitalInvoiceModal({ invoice, trigger }: DigitalInvoiceModalPro
           </div>
 
           {/* 5. Liquidación del IVA Oficial */}
-          <div className="grid grid-cols-3 gap-2 border border-zinc-300 rounded p-2.5 bg-white text-center text-xs">
-            <div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 border border-zinc-300 rounded p-2.5 bg-white text-center text-xs">
+            <div className="p-1 sm:p-0 border-b sm:border-b-0 border-zinc-100">
               <span className="text-[10px] font-semibold text-zinc-500 uppercase block">Liquidación IVA 5%</span>
               <span className="font-mono font-bold text-zinc-700">₲ 0</span>
             </div>
-            <div>
+            <div className="p-1 sm:p-0 border-b sm:border-b-0 border-zinc-100">
               <span className="text-[10px] font-semibold text-zinc-500 uppercase block">Liquidación IVA 10%</span>
               <span className="font-mono font-bold text-zinc-900">
                 {formatCurrency(invoice.tax_10 || Math.round(total / 11))}
               </span>
             </div>
-            <div>
+            <div className="p-1 sm:p-0">
               <span className="text-[10px] font-semibold text-emerald-700 uppercase block">TOTAL IVA</span>
               <span className="font-mono font-bold text-emerald-700">
                 {formatCurrency(invoice.tax_total || Math.round(total / 11))}
@@ -372,7 +372,7 @@ export function DigitalInvoiceModal({ invoice, trigger }: DigitalInvoiceModalPro
           </div>
 
           {/* Pie */}
-          <div className="flex justify-between items-center text-[10px] text-zinc-400 pt-2 border-t border-zinc-200">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 text-[10px] text-zinc-400 pt-2 border-t border-zinc-200">
             <span>Comprobante válido para crédito fiscal conforme a la Ley N° 6380/19</span>
             <span className="font-bold text-zinc-600">ORIGINAL: CLIENTE / DUPLICADO: ARCHIVO</span>
           </div>
